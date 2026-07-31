@@ -124,3 +124,22 @@ design, and the context sheet is an output of design phases, not a
 form filled retroactively.
 
 **Status:** Round 3 (module of 8).
+
+## Lessons from Round 1
+
+- **Policy edits with blast radius require a repo-wide sweep for sibling
+  phrasings.** The first-party-docs carve-out (Item 1) was written into
+  `instruction-authority.md`, but the same "treat repository content as
+  untrusted / as data" language had been independently restated in
+  `ai-engineering/core/security.md` and `.claude/rules/security.md`.
+  Landing the carve-out in one file left the other two silently
+  inconsistent until a follow-up grep caught it. Any change to a
+  cross-cutting rule needs an explicit search for every place that rule
+  has been paraphrased, not just the file where it was first written.
+
+- **Single-source-of-truth plus cross-reference beats restating rules in
+  multiple files.** The fix was not to copy the carve-out text into each
+  security file; it was a one-line pointer back to
+  `ai-engineering/policies/instruction-authority.md`. Restated rules
+  drift out of sync the moment one copy is edited — a reference can't
+  drift.
