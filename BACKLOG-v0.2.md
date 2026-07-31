@@ -14,8 +14,9 @@ produced the 8 items below.
 - **Round 3a** (this session): field-test repair, split out of Round 3 after
   a real v0.1->v0.2 pilot install surfaced concrete defects the original
   Round 3 scope (items 3, 4, 7) didn't cover. See "Round 3a" below.
-- **Round 3b**: the original Round 3 scope — items 3, 4, 7 — plus onboard
-  modules and discovery docs, still open.
+- **Round 3b** (this session): the original Round 3 scope — items 3, 4,
+  7 — plus onboard modules and discovery docs. Closes v0.2. See
+  "Round 3b" below.
 
 ## Items
 
@@ -85,7 +86,10 @@ Known mappings:
 Design choices (no external standard): the number 3 for lanes, the
 9-phase split, completion vocabulary, the 8 redteam attack surfaces.
 
-**Status:** Round 3.
+**Status:** DONE (Round 3b). Every principle-bearing statement in
+`ai-engineering/core/**` and `ai-engineering/policies/**` is tagged;
+`redteam.md` was already tagged in Round 2 and only verified, not
+re-tagged. Templates carry no tags. 67 new tags across 14 files.
 
 ### Item 5 — Redteam upgrade
 
@@ -113,10 +117,10 @@ setup prompts as modules.
 Principle: collapse the interface, not the implementation — the
 modular backend stays. Items 3, 4, 5 become its modules.
 
-**Status:** DONE (Round 2) for the shell, routing, redteam module, and
-setup-preflight/install/configure modules. Onboard modules
-(`modules/onboard-*.md`) remain for Round 3b alongside Items 3 and 4 —
-the ROUTE table's FALLBACK rule covers the gap until then.
+**Status:** DONE (Round 2 shell/routing/redteam/setup modules; Round 3b
+onboard modules). The ROUTE table's `onboard` row now points directly
+at `modules/onboard-inherited.md`, `onboard-existing.md`, and
+`onboard-greenfield.md`; the FALLBACK rule no longer applies to it.
 
 ### Item 3 — AI-maps-context
 
@@ -124,7 +128,9 @@ Context-sheet fields verifiable from the repo are filled by the agent
 with evidence and a confidence label; humans review only
 inferred/unknown fields.
 
-**Status:** Round 3b (module of 8).
+**Status:** DONE (Round 3b). `.claude/skills/engineer/modules/
+context-mapping.md` is the procedure; called from `setup-configure.md`
+and from each onboard module, not restated in either.
 
 ### Item 4 — Greenfield mode
 
@@ -132,7 +138,9 @@ For new projects the framework precedes code: the agent joins at
 design, and the context sheet is an output of design phases, not a
 form filled retroactively.
 
-**Status:** Round 3b (module of 8).
+**Status:** DONE (Round 3b). `modules/onboard-greenfield.md`: joins at
+workflow phase 2, ADRs land as decisions happen, `AGENTS.md`/the issue
+register are populated via `context-mapping.md` as facts become real.
 
 ## Round 3a — field-test repair
 
@@ -181,21 +189,66 @@ deferred to Round 3b.
 
 - **Two tensions surfaced by this round's consistency pass, deliberately
   left unresolved here (reported, not silently fixed, per this
-  session's own discipline):**
+  session's own discipline). Both resolved in Round 3b:**
   - `SETUP.md`'s Step 2 still states the pre-fix flat conflict rule
-    ("do not overwrite `AGENTS.md`, `CLAUDE.md`, or
-    `.claude/settings.json` without reviewing and merging") rather than
-    pointing at the new per-subpath matrix in `setup-install.md`.
-    `SETUP.md` already declares the modules canonical on divergence, so
-    this isn't a contradiction, but it is a stale restatement the
-    Round 1 lesson below would flag — worth a pointer-only fix next
-    time `SETUP.md` is touched.
-  - `setup-configure.md` now names a "conventions" placeholder in its
-    step-1 inventory, but the shipped `AGENTS.md` template has no
-    `## Conventions` (or bracketed-placeholder) section for that value
-    to land in. The module can still ask and record the answer in
-    `AGENTS.md` free-form, but the template itself doesn't yet reserve
-    a slot — a candidate for Round 3b or a fast-lane follow-up.
+    rather than pointing at the new per-subpath matrix in
+    `setup-install.md`. **Resolved (Round 3b):** Step 2 now points at
+    the matrix and states `.claude/` is not atomic.
+  - `setup-configure.md` names a "conventions" placeholder with no
+    `## Conventions` section in the shipped `AGENTS.md` template to
+    land it in. **Resolved (Round 3b):** the section was added, with
+    placeholder text ranking conventions per `instruction-authority.md`.
+
+## Round 3b — close out v0.2
+
+Closes v0.2: the original Round 3 scope (items 3, 4, 7) plus the
+onboard modules Item 8 deferred and the two tensions Round 3a reported
+instead of fixing.
+
+- **`context-mapping.md` (item 3)** — the AI-maps-context procedure,
+  built first since the onboard modules and `setup-configure.md`
+  consume it. **DONE.**
+- **`AGENTS.md` `## Conventions` section** — closes 3a tension #2.
+  **DONE.**
+- **Three onboard modules** — `onboard-inherited.md` (8-step distilled
+  pilot playbook: preflight, git baseline, RUN-FIRST with a timeboxed
+  escape hatch, docs-as-claims, issue register from day one, fence
+  real-risk paths first, test-first small-batch repair, independent-
+  verification exit gate), `onboard-existing.md` (lighter: verify
+  staleness, route into the workflow), `onboard-greenfield.md`
+  (item 4: framework precedes code). **DONE.**
+- **Router wiring** — the `engineer` ROUTE table's `onboard` row now
+  points at the three real modules; the FALLBACK rule no longer
+  applies to it. **DONE.**
+- **Provenance sweep (item 7)** — every principle-bearing statement in
+  `ai-engineering/core/**` and `ai-engineering/policies/**` tagged; see
+  Item 7 above for the count. **DONE.**
+- **Discovery docs** — `SETUP.md` Step 2 points at the per-subpath
+  matrix (closes 3a tension #1); `SETUP.md` and `CLAUDE.md` both name
+  `/engineer` as the primary agent-driven entry point. **DONE.**
+- **In-round consistency fix** — `setup-configure.md` was restating
+  the placeholder-filling logic `context-mapping.md` now owns; changed
+  to delegate instead of duplicate, since the duplication was this
+  round's own and caught before it shipped, not a pre-existing tension
+  being deferred. **DONE.**
+
+## Lessons from Round 3b
+
+- **Building the shared procedure first, before its callers, avoids a
+  duplication that building it last would have created.** Item 3
+  (`context-mapping.md`) went first specifically because the onboard
+  modules and `setup-configure.md` both needed it. That ordering still
+  didn't fully prevent drift — `setup-configure.md`'s existing text
+  predated `context-mapping.md` and had to be corrected mid-round to
+  delegate rather than restate. Building the shared piece first reduces
+  but doesn't eliminate the need for an explicit pass checking that
+  every caller was actually updated to call it.
+
+- **One tension found, deliberately left unresolved (reported, not
+  silently fixed):** `README.md`'s title still reads "...Framework
+  v0.1" while `VERSION` has read `0.2.0` since Round 3a. Out of scope
+  for both rounds' explicit file lists, so not touched here — a
+  one-line candidate for the next round or a fast-lane fix.
 
 ## Lessons from Round 1
 
