@@ -1,5 +1,7 @@
 # Processing Lanes
 
+[design choice — rationale: the number of lanes (3) and their exact thresholds are this framework's own risk-tiering scheme, not derived from one named external standard]
+
 ## Fast Lane
 
 Use only when all are true:
@@ -21,4 +23,4 @@ Use all nine phases in lightweight form.
 Mandatory for authentication, authorization, confidential or personal data, financial logic, migrations, deletion, infrastructure, production configuration, stack migration, and major architecture change.
 Require formal artifacts, protected verification, specialist review, and human approval.
 
-When uncertain, escalate.
+When uncertain, escalate. [established practice — precautionary principle / fail-safe default under uncertainty]

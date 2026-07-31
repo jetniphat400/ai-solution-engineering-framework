@@ -1,5 +1,7 @@
 # Skill Supply-Chain Policy
 
+[established practice — OWASP LLM Top 10 prompt-injection / supply-chain guidance, extended here from repository content to skills as an instruction supply chain]
+
 An external skill, plugin, or agent definition is a set of instructions
 the agent will follow, not inert data. A compromised skill attacks the
 agent's decisions directly — approvals, permissions, verification — which
@@ -11,9 +13,11 @@ elevated access.
 
 Not on the allowlist means do not load. This applies to skills, plugins,
 and agent definitions from outside the project's own `ai-engineering/`
-and adapter directories.
+and adapter directories. [established practice — default-deny / allowlisting security posture]
 
 ## Preflight audit checklist
+
+[established practice — third-party / software-supply-chain audit practice, e.g. SLSA and software-composition-analysis norms]
 
 Before adding a skill to the allowlist:
 
@@ -30,6 +34,8 @@ Before adding a skill to the allowlist:
   before the pin is moved.
 
 ## Allowlist registry
+
+[design choice — rationale: this framework's own minimal registry schema (pinned commit, audit date, approver, applicable phase) for recording completed audits]
 
 | Name | Pinned commit | Audit date | Approver | Applicable phase |
 |---|---|---|---|---|

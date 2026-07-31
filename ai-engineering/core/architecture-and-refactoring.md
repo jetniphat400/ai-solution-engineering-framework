@@ -6,6 +6,8 @@ Use this mode for structure, service separation, duplication, hardcode, oversize
 
 ## Assessment sequence
 
+[design choice — rationale: this framework's own ordered checklist for assessing an existing system; the individual steps draw on established architecture-review practice, but the specific 7-step sequence and its order are this repo's structure, not a named external methodology]
+
 1. Map entry points, modules, dependencies, data stores, integrations, and deployment boundaries.
 2. Locate business rules, configuration, error handling, tests, and security controls.
 3. Identify structural smells and their concrete impact.
@@ -15,6 +17,8 @@ Use this mode for structure, service separation, duplication, hardcode, oversize
 7. Re-run verification and adversarial architecture review.
 
 ## Common structural smells
+
+[established practice — code-smell taxonomy, Fowler & Beck, "Refactoring"]
 
 - God files or classes
 - Business rules in UI or controllers
@@ -29,6 +33,8 @@ Use this mode for structure, service separation, duplication, hardcode, oversize
 
 ## Architecture selection
 
+[established practice — evolutionary architecture / "monolith first" progression, Fowler]
+
 Default progression:
 
 ```text
@@ -42,6 +48,8 @@ Simple structured application
 Microservices require clear business and data ownership, independent deployment or scaling needs, team ownership, delivery automation, observability, and acceptance of distributed-system failure modes.
 
 ## Refactoring guardrails
+
+[established practice — behavior-preserving incremental refactoring, Fowler; avoiding big-bang rewrites is the same rationale behind the strangler-fig migration pattern]
 
 - No big-bang rewrite without an approved migration strategy.
 - Separate behavior change from structural refactoring when practical.
