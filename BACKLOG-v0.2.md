@@ -94,7 +94,9 @@ answer, silent skipping is not.
 Structure: progressive disclosure — small core, mode files load on
 demand.
 
-**Status:** Round 2.
+**Status:** DONE (Round 2). Modes and the universal coverage rule live
+in `ai-engineering/core/redteam.md`; the run procedure lives in
+`.claude/skills/engineer/modules/redteam.md`.
 
 ### Item 8 — Unified /engineer entry
 
@@ -107,7 +109,10 @@ setup prompts as modules.
 Principle: collapse the interface, not the implementation — the
 modular backend stays. Items 3, 4, 5 become its modules.
 
-**Status:** Round 2-3.
+**Status:** DONE (Round 2) for the shell, routing, redteam module, and
+setup-preflight/install/configure modules. Onboard modules
+(`modules/onboard-*.md`) remain for Round 3 alongside Items 3 and 4 —
+the ROUTE table's FALLBACK rule covers the gap until then.
 
 ### Item 3 — AI-maps-context
 
