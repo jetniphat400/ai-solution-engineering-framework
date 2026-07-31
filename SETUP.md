@@ -1,5 +1,7 @@
 # Setup Guide
 
+For an agent-driven install, run `/engineer setup-install` — it executes Steps 1-3 below as `.claude/skills/engineer/modules/setup-preflight.md`, `setup-install.md`, and `setup-configure.md`, each gated on your approval. This page remains the human-readable walkthrough; the modules are canonical if the two ever diverge.
+
 ## Step 1: Prepare the target repository
 
 Use a clean Git working tree.
