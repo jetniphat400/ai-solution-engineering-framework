@@ -49,14 +49,25 @@ For Standard or Controlled Lane work, confirmation here is what triggers enterin
 
 | Task type | Scenario | Route |
 |---|---|---|
-| `onboard` | inherited / greenfield / existing | `modules/onboard-<scenario>.md` — **not yet built (Round 3); use FALLBACK** |
+| `onboard` | inherited | `modules/onboard-inherited.md` |
+| `onboard` | existing | `modules/onboard-existing.md` |
+| `onboard` | greenfield | `modules/onboard-greenfield.md` |
 | `review-redteam` | any | `modules/redteam.md` |
 | `setup-install` | any | `modules/setup-preflight.md` -> `modules/setup-install.md` -> `modules/setup-configure.md`, strictly sequential, each gated on human approval before the next starts |
 | `bug` / `feature` / `refactor` | any | `ai-engineering/core/workflow.md`, phases run per the lane from DETECT |
 
+`modules/context-mapping.md` (the AI-maps-context procedure) is not a
+top-level route — it's a step the `onboard` modules and
+`modules/setup-configure.md` each call internally whenever they need
+`AGENTS.md` placeholders filled with evidence. Don't route to it
+directly and don't let a caller restate its procedure inline.
+
 ## FALLBACK rule
 
-If the routed module does not exist yet (currently: any `onboard` route), say so plainly — name the missing module and that it's scheduled for a later round — and offer the generic nine-phase workflow (`ai-engineering/core/workflow.md`) instead. Never improvise the content of a missing module.
+If a routed module is ever missing (none are, as of this table), say
+so plainly — name the missing module — and offer the generic
+nine-phase workflow (`ai-engineering/core/workflow.md`) instead. Never
+improvise the content of a missing module.
 
 ## Scope note
 
