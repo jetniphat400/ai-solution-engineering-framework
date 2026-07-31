@@ -1,6 +1,6 @@
 # Setup Guide
 
-For an agent-driven install, run `/engineer setup-install` — it executes Steps 1-3 below as `.claude/skills/engineer/modules/setup-preflight.md`, `setup-install.md`, and `setup-configure.md`, each gated on your approval. This page remains the human-readable walkthrough; the modules are canonical if the two ever diverge.
+`/engineer` is the framework's single agent-driven entry point, for setup and for every task afterward. For an agent-driven install, run `/engineer setup-install` — it executes Steps 1-3 below as `.claude/skills/engineer/modules/setup-preflight.md`, `setup-install.md`, and `setup-configure.md`, each gated on your approval. This page remains the human-readable walkthrough; the modules are canonical if the two ever diverge. Once set up, run `/engineer` again for any real task — it detects whether the project is greenfield, existing, or inherited and routes to the matching `onboard-*.md` module, or straight into the nine-phase workflow for a named bug/feature/refactor.
 
 ## Step 1: Prepare the target repository
 
@@ -29,7 +29,7 @@ Copy these items to the project root:
 - `.claude/`
 - `ai-engineering/`
 
-Do not overwrite an existing `AGENTS.md`, `CLAUDE.md`, or `.claude/settings.json` without reviewing and merging the content.
+`.claude/` is not atomic — it mixes framework-owned and project-owned content, and different subpaths need different treatment. Do not overwrite anything blind; follow the per-subpath conflict matrix in `.claude/skills/engineer/modules/setup-install.md` (`AGENTS.md`/`CLAUDE.md`, `.claude/settings.json`, framework-owned skills, everything else) instead of a one-line rule here.
 
 ### Option B: Use the installer
 
@@ -82,7 +82,7 @@ On the first session:
 Confirm that:
 
 - `CLAUDE.md` loaded and imported `AGENTS.md`
-- `engineering-workflow` and `redteam` skills are visible
+- `engineer`, `engineering-workflow`, and `redteam` skills are visible
 - `independent-reviewer` is visible
 - permission deny rules are active
 
@@ -121,6 +121,8 @@ Expected flow:
 Classify -> Discover -> Define -> Design -> Plan -> Build small batch
 -> Verify -> Independent review -> Red-team -> Completion report
 ```
+
+If the project was inherited rather than started fresh, run `/engineer onboard` first — it routes to `onboard-inherited.md` (or `onboard-existing.md` if the contract is already established) before this pilot task begins.
 
 ## Step 7: Review and tune
 
