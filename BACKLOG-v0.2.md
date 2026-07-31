@@ -11,7 +11,11 @@ produced the 8 items below.
 
 - **Round 1** (this session): Items 1, 2, 6 — doc foundations.
 - **Round 2**: Item 8 (shell) + Item 5.
-- **Round 3**: Items 3, 4, 7.
+- **Round 3a** (this session): field-test repair, split out of Round 3 after
+  a real v0.1->v0.2 pilot install surfaced concrete defects the original
+  Round 3 scope (items 3, 4, 7) didn't cover. See "Round 3a" below.
+- **Round 3b**: the original Round 3 scope — items 3, 4, 7 — plus onboard
+  modules and discovery docs, still open.
 
 ## Items
 
@@ -111,7 +115,7 @@ modular backend stays. Items 3, 4, 5 become its modules.
 
 **Status:** DONE (Round 2) for the shell, routing, redteam module, and
 setup-preflight/install/configure modules. Onboard modules
-(`modules/onboard-*.md`) remain for Round 3 alongside Items 3 and 4 —
+(`modules/onboard-*.md`) remain for Round 3b alongside Items 3 and 4 —
 the ROUTE table's FALLBACK rule covers the gap until then.
 
 ### Item 3 — AI-maps-context
@@ -120,7 +124,7 @@ Context-sheet fields verifiable from the repo are filled by the agent
 with evidence and a confidence label; humans review only
 inferred/unknown fields.
 
-**Status:** Round 3 (module of 8).
+**Status:** Round 3b (module of 8).
 
 ### Item 4 — Greenfield mode
 
@@ -128,7 +132,70 @@ For new projects the framework precedes code: the agent joins at
 design, and the context sheet is an output of design phases, not a
 form filled retroactively.
 
-**Status:** Round 3 (module of 8).
+**Status:** Round 3b (module of 8).
+
+## Round 3a — field-test repair
+
+Driven entirely by the first real v0.1->v0.2 pilot install (see
+`docs/field-tests/2026-07-31-pcc-pilot.md`, 18 friction findings).
+This round did not come from the original 8-item list — it repairs
+what the pilot broke or exposed, so items 3, 4, 7 above stayed
+deferred to Round 3b.
+
+- **Field-test evidence import** — the report lived only in the pilot
+  project. Copied into `docs/field-tests/2026-07-31-pcc-pilot.md` so
+  the evidence travels with the backlog it drives. **DONE.**
+- **Installer merge defect (friction #11)** — `install-to-project.ps1`/
+  `.sh` nested a source directory inside an existing same-named
+  destination instead of merging. Rewritten to walk files individually
+  and merge; proved with an isolated OS-temp scratch test (fresh
+  install + merge-onto-existing-with-extra-files, with and without the
+  overwrite flag). **DONE.**
+- **Conflict matrix (friction #12)** — `setup-install.md`'s flat
+  three-item conflict list replaced with an explicit per-subpath
+  matrix; states plainly that `.claude/` is not atomic. **DONE.**
+- **Upgrade detection (friction #7, #8, #9)** — `setup-preflight.md`
+  now inspects the target for pre-existing framework artifacts and
+  reports `FRESH_INSTALL` / `UPGRADE` / `PARTIAL_PREVIOUS_INSTALL`;
+  documents the three-location topology and removes the "current
+  repo" path default. **DONE.**
+- **`engineering-workflow` disposition (friction #13)** — rewritten to
+  a thin alias into the `engineer` skill's ROUTE table and
+  `ai-engineering/core/workflow.md`, matching the `redteam` pattern.
+  **DONE.**
+- **Version identity (friction #14)** — `VERSION` bumped to `0.2.0`;
+  `CHANGELOG.md` added with the rule that every closed round bumps
+  `VERSION` in the same commit. **DONE.**
+- **Configure-module gaps (friction #15, #18)** — `setup-configure.md`
+  gained a conventions placeholder slot and a `.claude/settings.json`
+  deny-rule review step (additive only, never loosened). **DONE.**
+
+## Lessons from Round 3a
+
+- **A field pilot finds gaps a design review can't.** All seven fixes
+  above trace to a single real install attempt against a partially-
+  upgraded target, not to further design discussion. The friction log
+  is the spec for this round precisely because it's evidence, not
+  speculation — worth repeating: run a real install before trusting a
+  setup module is complete.
+
+- **Two tensions surfaced by this round's consistency pass, deliberately
+  left unresolved here (reported, not silently fixed, per this
+  session's own discipline):**
+  - `SETUP.md`'s Step 2 still states the pre-fix flat conflict rule
+    ("do not overwrite `AGENTS.md`, `CLAUDE.md`, or
+    `.claude/settings.json` without reviewing and merging") rather than
+    pointing at the new per-subpath matrix in `setup-install.md`.
+    `SETUP.md` already declares the modules canonical on divergence, so
+    this isn't a contradiction, but it is a stale restatement the
+    Round 1 lesson below would flag — worth a pointer-only fix next
+    time `SETUP.md` is touched.
+  - `setup-configure.md` now names a "conventions" placeholder in its
+    step-1 inventory, but the shipped `AGENTS.md` template has no
+    `## Conventions` (or bracketed-placeholder) section for that value
+    to land in. The module can still ask and record the answer in
+    `AGENTS.md` free-form, but the template itself doesn't yet reserve
+    a slot — a candidate for Round 3b or a fast-lane follow-up.
 
 ## Lessons from Round 1
 
