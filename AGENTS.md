@@ -23,6 +23,12 @@ This file is the vendor-neutral source of repository instructions for coding age
 8. Do not declare completion without verifiable evidence.
 9. Stop for human review on protected or high-risk changes.
 
+## Conventions
+
+[LIST PROJECT-SPECIFIC, HUMAN-APPROVED CONSTRAINTS: NAMING, STYLE, MODULE LAYOUT, OR PROCESS RULES ALREADY AGREED BY THE TEAM. LEAVE EMPTY IF NONE EXIST YET RATHER THAN INVENTING ONE.]
+
+Conventions recorded here rank as "human-approved project constraints" in the resolution order in `ai-engineering/policies/instruction-authority.md` — second only to legal, security, and organization policy, and above the Common Engineering Core and everything ranked below it. That still-required safety valve applies regardless of rank: any conflict affecting security, data, architecture, or protected verification gets stopped and reported, never resolved silently by rank alone.
+
 ## Engineering baseline
 
 - No committed secrets or environment-specific credentials.
