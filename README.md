@@ -1,4 +1,4 @@
-# AI-Agnostic User-Centered Solution Engineering Framework v0.1
+# AI-Agnostic User-Centered Solution Engineering Framework
 
 A portable engineering baseline for Claude Code, OpenAI Codex, and future coding agents.
 

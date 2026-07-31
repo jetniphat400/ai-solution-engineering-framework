@@ -249,6 +249,9 @@ instead of fixing.
   v0.1" while `VERSION` has read `0.2.0` since Round 3a. Out of scope
   for both rounds' explicit file lists, so not touched here — a
   one-line candidate for the next round or a fast-lane fix.
+  **Resolved (v0.2 release closeout):** the title no longer carries a
+  hardcoded version number at all, so it can't drift out of sync with
+  `VERSION` again.
 
 ## Lessons from Round 1
 
