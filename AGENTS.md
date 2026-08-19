@@ -125,3 +125,8 @@ End with exactly one status and the evidence supporting it:
 - `SECURITY_BLOCKED`
 - `ENVIRONMENT_UNAVAILABLE`
 - `NEEDS_HUMAN`
+
+Work tracked in a multi-item register or through a Gate (see
+`ai-engineering/core/workflow.md`) maps its own per-item status onto
+one of the statuses above at closeout via that section's crosswalk —
+this list is not restated per item.

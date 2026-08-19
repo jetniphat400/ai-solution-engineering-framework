@@ -127,6 +127,11 @@ flow.
 
 **Size:** M.
 
+**Status:** DONE (Round 2). `ai-engineering/core/workflow.md` gained a
+"Gates: investigation, study-only, decision" section naming and
+templating the pattern; its closing states are drawn from the same
+five-state legend Item 5 defines, not a separate vocabulary.
+
 ### Item 5 — Large-audit register conventions
 
 **Source:** pilot #2 friction #5 + #6 + #7.
@@ -160,6 +165,15 @@ tracking stays local.
 **Size:** L — three related sub-asks, touches
 `ai-engineering/core/workflow.md`, `ISSUES.template.md`, and the
 "Completion status" section of `AGENTS.md`.
+
+**Status:** DONE (Round 2). `ai-engineering/core/workflow.md` gained a
+"Status legend for register-scale and Gate work" section (the shared
+five-state legend and its crosswalk to `AGENTS.md`) and a
+"Register-scale audits" section (ID-prefix rule, lane-rationale rule,
+closeout mapping); `ISSUES.template.md` and `AGENTS.md`'s "Completion
+status" section each gained a one-line cross-reference rather than a
+restatement. See "Lessons from Round 2" for the `OPEN`-split tension
+this required.
 
 ### Item 6 — Temporary security-bypass hygiene
 
@@ -231,3 +245,57 @@ Closes Items 3 and 6 against pilot #2's frictions #1, #2, and #4.
   `SKILL.md` to reference it instead of restating it — the same
   delegate-instead-of-duplicate fix Round 3b applied to
   `setup-configure.md` -> `context-mapping.md`.
+
+## Round 2 — Gate procedure + register conventions
+
+Closes Items 4 and 5 against pilot #2's frictions #3, #6, and #7. Built
+as one shared design, per the user's explicit instruction for this
+round: a single five-state local-status legend (`DONE` /
+`NOT_STARTED` / `DEFERRED` / `NEEDS_DECISION` / `CONTESTED`), used
+identically by register items and by Gate closures, crosswalked onto
+`AGENTS.md`'s seven terminal statuses — not three separate dialects.
+
+- **Status legend for register-scale and Gate work (shared
+  foundation)** — new section in `ai-engineering/core/workflow.md`
+  defining the five local statuses and their crosswalk to `AGENTS.md`.
+  `AGENTS.md`'s "Completion status" section now carries a one-line
+  pointer to it instead of the crosswalk being restated there. **DONE.**
+- **Register-scale audits (Item 5)** — new section in `workflow.md`:
+  distinct ID prefixes from the start (never bare numbers, closing
+  friction #7), a required one-line lane-assignment rationale per item
+  (closing friction #6), and closeout mapping via the shared crosswalk
+  (closing friction #5). `ISSUES.template.md` gained a one-line
+  cross-reference to this section rather than a restatement. **DONE.**
+- **Gates: investigation, study-only, decision (Item 4)** — new section
+  in `workflow.md` naming and templating the pattern pilot #2 invented
+  ad hoc (an explicit three-gate split for one finding, and the same
+  investigate-then-approve shape reused for a five-item money-path
+  batch). Each Gate type's closing states are drawn from the shared
+  legend, not a new vocabulary. **DONE.**
+
+## Lessons from Round 2
+
+- **Tension found and resolved by design, not forced (per this round's
+  explicit instruction):** pilot #2's own register used one term,
+  `OPEN`, for two distinct meanings — "not yet attempted" and
+  "investigated, deliberately left as its own scoped future item" (its
+  ten frontend-consolidation findings, R42-R51, are the clearest
+  example of the second sense). Those two meanings need two different
+  `AGENTS.md` targets (`REPLAN_REQUIRED` vs.
+  `CONDITIONAL_PASS`/`NEEDS_HUMAN`), so a legend that reused `OPEN`
+  verbatim could not crosswalk cleanly onto `AGENTS.md`'s vocabulary no
+  matter how the mapping table was written. The fix was to split
+  `OPEN` into `NOT_STARTED` and `DEFERRED` — a real vocabulary change,
+  not a cosmetic rename — reported here rather than silently picking
+  one target and hoping it fit both senses.
+- **Building the shared legend before either consuming item, same
+  lesson Round 3b drew for `context-mapping.md`.** Item 4's Gate
+  closing-states and Item 5's register closing-states were designed
+  together as one section first, specifically so neither could drift
+  into its own vocabulary — the ordering itself is what prevented a
+  third dialect from appearing, not a later reconciliation pass.
+- **Observed, deliberately not touched:** `REDTEAM-REPORT.template.md`'s
+  release-recommendation vocabulary (`PASS | CONDITIONAL PASS | FAIL`)
+  uses wording similar to `AGENTS.md`'s `CONDITIONAL_PASS`, but answers
+  a different question (release-readiness verdict vs. task-completion
+  status) — not the same crosswalk, and out of scope for this round.
