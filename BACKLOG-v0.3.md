@@ -53,6 +53,16 @@ installed at the personal level (mechanism is adapter-specific and
 not yet designed); how a repo already on the light tier upgrades to
 full without re-running the entire setup flow from scratch.
 
+**Status:** Light tier DONE (Round 3, Part A) — `SETUP.md` now documents
+it as a full equal to Full install, built entirely from the existing
+`context-mapping.md` module (no new module or route needed); the
+light-to-full upgrade question above is answered by reusing
+`setup-install.md`'s existing conflict matrix, not new plumbing.
+Zero-install tier: draft exists (contrib path), pending re-test —
+targeted v1.1 (see `BACKLOG-v1.1.md`'s zero-install item). Full tier
+itself (the clone-install-delete ceremony) is unchanged in substance,
+now properly documented per Item 2 below.
+
 ### Item 2 — Distribution polish
 
 **Problem:** `SETUP.md` documents manual copy and the installer
@@ -69,7 +79,11 @@ a later polish item — deferred until the framework has left pilot
 status, since it adds a new distribution mechanism to secure and
 maintain and isn't needed to prove the tiered-adoption model first.
 
-**Status:** Open, not yet scoped into a round.
+**Status:** DONE (Round 3, Part A). `SETUP.md` now states the clone (Step
+0) -> install (Steps 1-3) -> delete (Step 4) flow explicitly, with the
+deletion step spelled out on its own rather than left implicit. The
+direct-from-URL install idea remains deferred, unscoped, for the same
+reason stated above.
 
 ### Item 3 — Confidence-label convention for claims in flight
 
