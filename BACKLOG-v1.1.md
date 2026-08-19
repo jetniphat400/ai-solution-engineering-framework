@@ -280,4 +280,9 @@ draft landing.
 personal-level skill is packaged and installed varies by coding agent)
 and not yet designed, per `BACKLOG-v0.3.md`'s original open question.
 
-**Status:** Open, not yet scoped into a round (all ten items above).
+**Status:** Assigned to v1.1 Round 1. Owner: maintainer. Closes the
+open follow-up `BACKLOG-v0.3.md`'s cycle closeout named against this
+item — see that file's "Cycle closeout" section, updated to
+`CONDITIONAL_PASS` accordingly.
+
+**Status (items 1-9 above):** Open, not yet scoped into a round.

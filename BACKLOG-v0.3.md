@@ -327,30 +327,28 @@ not decoratively:
 |---|---|---|
 | 1 — Tiered adoption: Light tier | `DONE` | `DONE_VERIFIED` |
 | 1 — Tiered adoption: Full tier | `DONE` | `DONE_VERIFIED` |
-| 1 — Tiered adoption: Zero-install sub-tier | `DEFERRED` | `NEEDS_HUMAN` |
+| 1 — Tiered adoption: Zero-install sub-tier | `DEFERRED` | `CONDITIONAL_PASS` |
 | 2 — Distribution polish | `DONE` | `DONE_VERIFIED` |
 | 3 — Confidence-label convention | `DONE` | `DONE_VERIFIED` |
 | 4 — Named Gate procedure | `DONE` | `DONE_VERIFIED` |
 | 5 — Register conventions | `DONE` | `DONE_VERIFIED` |
 | 6 — Bypass hygiene | `DONE` | `DONE_VERIFIED` |
 
-The zero-install sub-tier's crosswalk is `NEEDS_HUMAN`, not
-`CONDITIONAL_PASS` — the crosswalk rule states `CONDITIONAL_PASS`
-applies only "if a round or owner is already assigned," and
-`BACKLOG-v1.1.md`'s Item 10 (the successor this sub-tier was deferred
-to) is explicitly "not yet scoped into a round." Rounding this up to
-`CONDITIONAL_PASS` because it would make a cleaner-looking closeout
-would be exactly the kind of silent inconsistency this backlog's own
-Round 2 work exists to prevent — so it's reported as `NEEDS_HUMAN`
-here: a human still needs to schedule `BACKLOG-v1.1.md` Item 10 into a
-round.
+The zero-install sub-tier's crosswalk was originally reported as
+`NEEDS_HUMAN` at cycle closeout (v1.0.0, commit `3a7c939`) rather than a
+rounded-up `CONDITIONAL_PASS`, because the crosswalk rule requires a
+round or owner already assigned for `CONDITIONAL_PASS`, and
+`BACKLOG-v1.1.md`'s Item 10 was at that point explicitly "not yet
+scoped into a round." That follow-up has since been actioned: Item 10
+is now assigned to v1.1 Round 1, owner: maintainer (see
+`BACKLOG-v1.1.md`'s Item 10 status). The crosswalk above is updated to
+`CONDITIONAL_PASS` accordingly — a round and owner are now on record,
+which is exactly the condition the rule requires, not a re-interpretation
+of it.
 
 **Overall status for this closeout task:** `DONE_VERIFIED` — every item
 above has an explicit terminal status and crosswalk, `CHANGELOG.md` and
 `VERSION` are updated in the same commit per the versioning rule, and
-`BACKLOG-v0.3.md` is closed. The one `NEEDS_HUMAN` finding is a fact
-*reported by* this completed closeout work, not a defect *in* it.
-
-**Open follow-up for a human:** schedule `BACKLOG-v1.1.md`'s zero-install
-item (Item 10) into a future round whenever the externally-prototyped
-draft is ready to be re-tested and contributed, or independently of it.
+`BACKLOG-v0.3.md` is closed. The zero-install follow-up that was open at
+closeout is now resolved (assigned, see above); no open follow-up
+remains from this cycle.
