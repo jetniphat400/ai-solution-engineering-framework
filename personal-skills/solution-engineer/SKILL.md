@@ -199,6 +199,16 @@ End every task with exactly one status and the evidence supporting it:
 - `ENVIRONMENT_UNAVAILABLE`
 - `NEEDS_HUMAN`
 
+`SECURITY_BLOCKED` and `NEEDS_HUMAN` are not interchangeable for "a
+security concern stopped this": use `SECURITY_BLOCKED` only when no
+viable safe path forward exists without a policy exception; use
+`NEEDS_HUMAN` when a safe alternative has been identified (even only
+proposed, not yet applied) and what's missing is approval to proceed
+with it. (This skill's own S2 scratch-repo test flagged this exact
+ambiguity as a judgment call; cross-agent testing later confirmed it as
+a real, recurring gap, not a one-off — see `docs/field-tests/
+2026-08-19-cross-agent-contract-test.md`.)
+
 [source: this framework's own `AGENTS.md:117-127` — inlined here
 because a zero-install target has no `AGENTS.md` of its own to point
 at.]

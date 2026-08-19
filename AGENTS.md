@@ -126,6 +126,16 @@ End with exactly one status and the evidence supporting it:
 - `ENVIRONMENT_UNAVAILABLE`
 - `NEEDS_HUMAN`
 
+`SECURITY_BLOCKED` and `NEEDS_HUMAN` are not interchangeable for "a
+security concern stopped this": use `SECURITY_BLOCKED` only when no
+viable safe path forward exists without a policy exception; use
+`NEEDS_HUMAN` when a safe alternative has been identified (even only
+proposed, not yet applied) and what's missing is approval to proceed
+with it. (Added after two independent agents, in two independent
+sessions, chose different statuses for the same situation shape — a
+proposed safe fix awaiting approval — see `docs/field-tests/
+2026-08-19-cross-agent-contract-test.md`.)
+
 Work tracked in a multi-item register or through a Gate (see
 `ai-engineering/core/workflow.md`) maps its own per-item status onto
 one of the statuses above at closeout via that section's crosswalk —
