@@ -164,17 +164,41 @@ two. Self-administered, self-graded evidence is also the self-audit's
 own limitation (see "Origin" above) — this item is how a future audit,
 by anyone, stops being self-graded.
 
-**Proposal:** Define a small set of adoption/effectiveness metrics
-(e.g., percentage of completed tasks with all five verification-
-evidence fields present, percentage of Controlled-lane changes with a
-recorded pre-diff approval, friction-findings-per-session as a leading
-indicator) and add `ai-engineering/templates/
-FIELD-TEST-REPORT.template.md` so future pilots — particularly ones
-run by people other than this framework's authors, on repositories
-they didn't build — produce comparable, citable evidence instead of a
-one-off narrative.
+**Proposal:** A three-tier evidence standard, not a flat metrics list —
+graded by how much a metric actually proves:
+
+- **Tier 1 (outcome metrics)** — test counts, bugs fixed, and similar
+  aggregate numbers. Narrative value only: confounded by model, skill,
+  and task variance across sessions, so never citable as causal proof
+  that the framework itself caused the outcome.
+- **Tier 2 (incident log) — the primary evidence standard.** Recorded
+  instances where a *named* framework mechanism (a specific rule in
+  `verification.md`, `redteam.md`, `workflow.md`, etc.) caught a defect
+  or false claim that would otherwise have shipped. Each entry records
+  the mechanism, the incident, and the counterfactual harm — what would
+  have happened without it. This is the format a field-test template
+  must implement as its core, required table; Tier 1 and Tier 3 support
+  it but don't replace it.
+- **Tier 3 (controlled comparison)** — for similar task batches, run one
+  through full framework discipline and a matched one lightweight;
+  metrics (rework rounds, escaped defects, tests added) are pre-defined
+  *before* running either batch, never chosen after seeing results.
+  This item designs the protocol (pre-registration rules, batch-pairing
+  rules); first execution piggybacks on a real work batch in the pilot
+  repo rather than a staged exercise.
+
+Implemented as `docs/field-tests/TEMPLATE.md` — alongside the field-test
+reports it standardizes, not `ai-engineering/templates/` (this item's
+own original proposal named that path; corrected here to match where
+it actually shipped, since a template for evidence *about* the
+framework belongs with the evidence itself, not the engineering
+artifacts the framework produces for a target project).
 
 **Size:** L.
+
+**Status:** Design and template `DONE` (v1.1 Round 1) — see
+`docs/field-tests/TEMPLATE.md`. Tier 3's first real execution is
+`NOT_STARTED`, depending on a future real work batch in the pilot repo.
 
 ### Item 7 — "AI-agnostic" claim outruns the shipped adapters
 
@@ -285,4 +309,29 @@ open follow-up `BACKLOG-v0.3.md`'s cycle closeout named against this
 item — see that file's "Cycle closeout" section, updated to
 `CONDITIONAL_PASS` accordingly.
 
-**Status (items 1-9 above):** Open, not yet scoped into a round.
+### Item 11 — Cross-agent contract test
+
+**Provenance:** planning session 2026-08.
+
+**Problem:** The framework claims cross-agent portability — even after
+last round's softened `README.md` tagline, it still names a real
+Claude Code adapter alongside Codex's native-`AGENTS.md` support — but
+this has never actually been exercised through more than one coding
+agent. Both existing field tests (`docs/field-tests/*.md`) are Claude
+Code sessions; the Codex adapter (flagged as thin in Item 7) has zero
+recorded executions of any kind.
+
+**Proposal:** Run the identical `AGENTS.md` contract and an identical
+small task set through two different coding agents — Claude Code plus
+one non-Anthropic agent (e.g. GitHub Copilot or OpenAI Codex) — against
+the same scratch repository. Compare across the two runs: lane
+classification, evidence discipline, status-vocabulary compliance, and
+tension reporting. This is the first real test of the "AI-agnostic"
+claim (structural inspection only got as far as Item 7's fork), and
+its results feed directly into deciding which branch of that fork to
+take.
+
+**Size:** M.
+
+**Status (items 1-5, 7, 8, 9, 11 above):** Open, not yet scoped into a
+round.
