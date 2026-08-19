@@ -58,8 +58,10 @@ it as a full equal to Full install, built entirely from the existing
 `context-mapping.md` module (no new module or route needed); the
 light-to-full upgrade question above is answered by reusing
 `setup-install.md`'s existing conflict matrix, not new plumbing.
-Zero-install tier: draft exists (contrib path), pending re-test —
-targeted v1.1 (see `BACKLOG-v1.1.md`'s zero-install item). Full tier
+Zero-install tier: a personal-skill draft was prototyped externally
+and will be contributed through a normal PR once re-tested — the
+`BACKLOG-v1.1.md` zero-install item stands on its own without that
+draft landing. Full tier
 itself (the clone-install-delete ceremony) is unchanged in substance,
 now properly documented per Item 2 below.
 
