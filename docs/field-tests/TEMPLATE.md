@@ -83,6 +83,29 @@ before-the-fact appearance.]
   and how that assignment was decided (ideally not hand-picked after the
   fact to favor one arm)
 
+> **If "wall time" is one of the metrics, state its exact
+> operationalization now** (e.g. "first commit timestamp -> last commit
+> timestamp" vs. "task start -> first commit"), and check it against
+> each arm's *pre-declared* commit shape before relying on it. A
+> "first commit -> last commit" span silently degenerates to zero for
+> whichever arm is pre-declared as a single combined commit — that is a
+> mismatch in the metric's definition for that arm, not a finding that
+> the arm was instant. (Found the hard way: a real Tier-3 pair pre-
+> registered exactly this metric, and the LIGHTWEIGHT arm's own
+> pre-declared single-commit shape made it unmeasurable by construction
+> — recorded as a methodology finding rather than papered over, but
+> avoidable by stating the operationalization and checking it against
+> each arm's declared shape up front.)
+>
+> **If "escaped defects" is one of the metrics, pre-register *when* the
+> check actually runs** — a stated interval ("recheck after N days") or
+> a stated trigger ("recheck at the next session touching this area"),
+> not just "later." An unspecified window makes a "none found" result
+> at close time mean nothing: hours elapsed is not a soak period, and a
+> reader can't tell the difference between "genuinely clean" and "not
+> enough time has passed to know" unless the window was named in
+> advance.
+
 **Outcome (fill in after both batches complete):**
 
 | Metric | Full-discipline batch | Lightweight batch |
