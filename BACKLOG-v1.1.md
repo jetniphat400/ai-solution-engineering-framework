@@ -58,6 +58,13 @@ closes the cheaper, more common failure: a field silently left blank.
 
 **Size:** M.
 
+**Status:** `DONE` -> crosswalk `DONE_VERIFIED`. Shipped:
+`ai-engineering/checks/check-verification-report.sh`/`.ps1`. Also fixed
+a pre-existing mismatch between `verification.md`'s stated 5-field
+format and `VERIFICATION-REPORT.template.md`'s actual 4-column table
+(missing `Pass or fail`), found while building this checker, not
+before. Full evidence: `ai-engineering/checks/TEST-EVIDENCE.md`.
+
 ### Item 2 — Protected-path change detection
 
 **Provenance:** self-audit 2026-08 (sub-question 1).
@@ -77,9 +84,18 @@ following an empty list.
 files against a project's own filled-in protected-paths list and
 blocks or warns before commit. First mechanical backstop for a rule
 that today is prose-only; ships as an optional template, since
-protected paths are necessarily project-specific.
+protected paths are necessarily project-specific. (Shipped under
+`ai-engineering/checks/` instead of either originally-named location —
+this rides along with `ai-engineering/**`'s existing wholesale copy to
+Full-tier targets with zero installer changes, which `scripts/` does
+not get.)
 
 **Size:** M.
+
+**Status:** `DONE` -> crosswalk `DONE_VERIFIED`. Shipped:
+`ai-engineering/checks/check-protected-paths.sh`/`.ps1`. Full evidence,
+including real-history detection accuracy against a PCC commit that
+touched a protected path: `ai-engineering/checks/TEST-EVIDENCE.md`.
 
 ### Item 3 — CI regression-gate template for verification manipulation
 
@@ -105,6 +121,19 @@ template, not a mandated pipeline baked into every install.
 **Size:** L — real design work, and care needed to keep it a template
 rather than a hardcoded assumption about any project's toolchain.
 
+**Status:** `DONE` -> crosswalk `DONE_VERIFIED`. Shipped:
+`ai-engineering/checks/check-verification-regression.sh`/`.ps1` (the
+portable, CI-agnostic mechanism) plus `ai-engineering/templates/
+ci-regression-gate.example.yml` (one concrete GitHub-Actions-flavored
+wrapper, clearly labeled as swappable). Ships two heuristics (test-
+count regression, suppression-comment/assertion-removal detection); a
+third (decreasing numeric thresholds near keywords like "coverage")
+was scoped out as too complex/false-positive-prone for a first version
+— a real scoping decision, not a silent drop. Full evidence, including
+a test-count cross-check against PCC's real suite that matched
+`docs/REFACTOR-REGISTER.md`'s own recorded figure exactly:
+`ai-engineering/checks/TEST-EVIDENCE.md`.
+
 ### Item 4 — Skill supply-chain pinning has no mechanical enforcement
 
 **Provenance:** self-audit 2026-08 (sub-question 1).
@@ -125,9 +154,18 @@ loaded skill is likely adapter-specific and may not be buildable today:
 add a recorded pinned-commit verification step to `setup-configure.md`
 (or a standalone periodic-audit reminder) that makes the gap visible
 and auditable, rather than promising enforcement the framework can't
-yet deliver.
+yet deliver. (Executed as a standalone visibility check rather than a
+`setup-configure.md` step, since it's equally useful run anytime, not
+only during install — see Status below.)
 
 **Size:** S.
+
+**Status:** `DONE` -> crosswalk `DONE_VERIFIED`. Shipped:
+`ai-engineering/checks/check-skill-allowlist.sh`/`.ps1` — advisory
+only, scope limited to `.claude/skills/` (not plugins or MCP servers,
+per this item's own proposal). Full evidence, including a true
+positive against PCC's real, currently-unregistered `analyze-stock`
+skill: `ai-engineering/checks/TEST-EVIDENCE.md`.
 
 ### Item 5 — Evidence-and-limitations statement
 
@@ -378,5 +416,6 @@ take.
 
 **Size:** M.
 
-**Status (items 1-5, 7, 8, 9, 11 above):** Open, not yet scoped into a
-round.
+**Status (items 5, 7, 8, 9, 11 above):** Open, not yet scoped into a
+round. (Items 1-4 closed in Round 2 — see each item's own Status
+above.)
