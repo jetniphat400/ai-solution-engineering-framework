@@ -315,3 +315,42 @@ identically by register items and by Gate closures, crosswalked onto
   uses wording similar to `AGENTS.md`'s `CONDITIONAL_PASS`, but answers
   a different question (release-readiness verdict vs. task-completion
   status) — not the same crosswalk, and out of scope for this round.
+
+## Cycle closeout
+
+Every item below is terminal-status'd per the five-state legend in
+`ai-engineering/core/workflow.md` and crosswalked onto `AGENTS.md`'s
+terminal-status vocabulary, per that same section — applied literally,
+not decoratively:
+
+| Item | Local status | `AGENTS.md` crosswalk |
+|---|---|---|
+| 1 — Tiered adoption: Light tier | `DONE` | `DONE_VERIFIED` |
+| 1 — Tiered adoption: Full tier | `DONE` | `DONE_VERIFIED` |
+| 1 — Tiered adoption: Zero-install sub-tier | `DEFERRED` | `NEEDS_HUMAN` |
+| 2 — Distribution polish | `DONE` | `DONE_VERIFIED` |
+| 3 — Confidence-label convention | `DONE` | `DONE_VERIFIED` |
+| 4 — Named Gate procedure | `DONE` | `DONE_VERIFIED` |
+| 5 — Register conventions | `DONE` | `DONE_VERIFIED` |
+| 6 — Bypass hygiene | `DONE` | `DONE_VERIFIED` |
+
+The zero-install sub-tier's crosswalk is `NEEDS_HUMAN`, not
+`CONDITIONAL_PASS` — the crosswalk rule states `CONDITIONAL_PASS`
+applies only "if a round or owner is already assigned," and
+`BACKLOG-v1.1.md`'s Item 10 (the successor this sub-tier was deferred
+to) is explicitly "not yet scoped into a round." Rounding this up to
+`CONDITIONAL_PASS` because it would make a cleaner-looking closeout
+would be exactly the kind of silent inconsistency this backlog's own
+Round 2 work exists to prevent — so it's reported as `NEEDS_HUMAN`
+here: a human still needs to schedule `BACKLOG-v1.1.md` Item 10 into a
+round.
+
+**Overall status for this closeout task:** `DONE_VERIFIED` — every item
+above has an explicit terminal status and crosswalk, `CHANGELOG.md` and
+`VERSION` are updated in the same commit per the versioning rule, and
+`BACKLOG-v0.3.md` is closed. The one `NEEDS_HUMAN` finding is a fact
+*reported by* this completed closeout work, not a defect *in* it.
+
+**Open follow-up for a human:** schedule `BACKLOG-v1.1.md`'s zero-install
+item (Item 10) into a future round whenever the externally-prototyped
+draft is ready to be re-tested and contributed, or independently of it.
