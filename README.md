@@ -1,12 +1,12 @@
 # AI-Agnostic User-Centered Solution Engineering Framework
 
-A portable engineering baseline with a full Claude Code adapter and native `AGENTS.md` support for OpenAI Codex. (Codex support today is native-file-discovery only — no Codex-specific skill, routing, or onboarding exists yet; see `BACKLOG-v1.1.md` Item 7.)
+A portable engineering baseline: a vendor-neutral core contract (`AGENTS.md`, `ai-engineering/`) plus a full Claude Code adapter. The core contract has been cross-tested against Claude Code and one other coding agent on identical tasks — see the "Status" section below for what that test does and doesn't establish. `/engineer`'s router, red-team modes, and onboarding modules remain Claude-Code-specific; other agents pick up the core contract via native `AGENTS.md` discovery, not this skill machinery (see `BACKLOG-v1.1.md` Item 7).
 
 Everything needed to adopt, operate, and extend this framework lives in this repository — no external service, hosted component, or separate download beyond the one-time source checkout `SETUP.md` describes.
 
 ## Status
 
-`v1.0.0` — first public release. Field-tested twice (`docs/field-tests/`), both times by this framework's own authors against the same internal repository — real evidence, but limited: no independent replication, no control, no quantitative metric yet. See `BACKLOG-v1.1.md` Items 5-6 for the planned evidence-and-limitations statement and an independently-replicable field-test template. Licensed under MIT — see `LICENSE`.
+`v1.1.0`. Field-tested three times (`docs/field-tests/`); the first two were run by this framework's own authors against the same internal repository (real evidence, but limited: no independent replication, no control). The third cross-tested the core `AGENTS.md` contract against Claude Code and one non-Anthropic coding agent, given identical tasks on identical repos — 7 of 8 scored dimensions matched exactly or in substance (lane classification, evidence discipline, independent identification of a real vulnerability, and consistent handling of an embedded prompt-injection attempt), with one real gap found and fixed (a terminal-status ambiguity, `SECURITY_BLOCKED` vs. `NEEDS_HUMAN`). Full result: `docs/field-tests/2026-08-19-cross-agent-contract-test.md`. This is real evidence for cross-agent portability of the core contract specifically — at n=1, one agent, one repo, two small tasks — not a general "works with any agent" claim. Licensed under MIT — see `LICENSE`.
 
 ## What this starter kit provides
 

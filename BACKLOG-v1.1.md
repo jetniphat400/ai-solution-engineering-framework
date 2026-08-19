@@ -187,6 +187,12 @@ misled about the framework's actual maturity.
 
 **Size:** S.
 
+**Status:** `DONE` -> crosswalk `DONE_VERIFIED`. `README.md`'s
+"Status" section (added v1.0 Round 3, refreshed this round alongside
+Item 7) now names all three field tests, states the self-administered/
+n=2 limitation for the first two explicitly, and states the cross-agent
+test's own n=1 scope rather than letting a reader infer either.
+
 ### Item 6 — Metrics definition and a reusable field-test template
 
 **Provenance:** self-audit 2026-08 (sub-question 2).
@@ -234,9 +240,16 @@ artifacts the framework produces for a target project).
 
 **Size:** L.
 
-**Status:** Design and template `DONE` (v1.1 Round 1) — see
-`docs/field-tests/TEMPLATE.md`. Tier 3's first real execution is
-`NOT_STARTED`, depending on a future real work batch in the pilot repo.
+**Status:** `DONE` -> crosswalk `DONE_VERIFIED`. Design and template
+closed Round 1 — see `docs/field-tests/TEMPLATE.md`. Tier 3's first
+real execution, previously `NOT_STARTED`, is now also `DONE`: PCC's
+`R42`/`R43` pair (`docs/REFACTOR-REGISTER.md` lines 238-263) is exactly
+the "piggyback on a real work batch in the pilot repo" this item
+called for, transcribed in field test #3
+(`docs/field-tests/2026-08-19-pcc-campaign-close-and-v1.1-round2.md`
+§4). That same run surfaced two real gaps in the protocol's own
+metrics (wall time, escaped-defects window), fixed in `TEMPLATE.md`
+this round (Item 4).
 
 ### Item 7 — "AI-agnostic" claim outruns the shipped adapters
 
@@ -265,6 +278,17 @@ Codex support today is native-`AGENTS.md`-only").
 
 **Size:** M.
 
+**Status:** `DONE` -> crosswalk `DONE_VERIFIED`. Fork resolved:
+`README.md`'s framing corrected to what's shipped, now backed by real
+evidence rather than structural inspection alone — Item 11's cross-agent
+test (`docs/field-tests/2026-08-19-cross-agent-contract-test.md`) found
+the core `AGENTS.md` contract portable in substance (7/8 dimensions) to
+at least one non-Anthropic agent, while the `/engineer` router/red-team/
+onboarding machinery remains Claude-Code-specific, exactly as this
+item's investigation found. Genuine Codex-adapter parity (the other
+branch of the fork) remains a real, larger option, not pursued this
+round — a candidate for a future backlog if wanted, not decided here.
+
 ### Item 8 — Direct-from-URL install
 
 **Provenance:** pre-agreed, graduating from `BACKLOG-v0.3.md`'s Item 2,
@@ -283,6 +307,13 @@ not yet decided; this item is to design and evaluate options, not
 prescribe one.
 
 **Size:** M.
+
+**Status:** `DEFERRED` -> crosswalk `NEEDS_HUMAN`. Not in this round's
+scope. No successor round/owner assigned yet, so this crosswalks to
+`NEEDS_HUMAN` rather than `CONDITIONAL_PASS` — the same crosswalk rule
+applied honestly at the v1.0.0 closeout for the zero-install tier
+before it was assigned. A human needs to schedule this into a future
+backlog (v1.2 or later, not yet seeded).
 
 ### Item 9 — Unattended execution profile: lanes as loop stopping conditions
 
@@ -316,6 +347,11 @@ without which "Standard loops while verification passes" isn't
 actually checkable unattended.
 
 **Size:** L.
+
+**Status:** `DEFERRED` -> crosswalk `NEEDS_HUMAN`. Not in this round's
+scope. No successor round/owner assigned yet — same honest crosswalk
+as Item 8, for the same reason. A human needs to schedule this into a
+future backlog.
 
 ### Item 10 — Zero-install tier
 
@@ -416,6 +452,48 @@ take.
 
 **Size:** M.
 
-**Status (items 5, 7, 8, 9, 11 above):** Open, not yet scoped into a
-round. (Items 1-4 closed in Round 2 — see each item's own Status
-above.)
+**Status:** `DONE` -> crosswalk `DONE_VERIFIED`. Executed against one
+non-Anthropic coding agent (identity not disclosed in the transcript
+provided; recorded as such rather than guessed at). 7/8 scored dimensions matched Claude
+Code's own pass exactly or in substance; one real gap found
+(`SECURITY_BLOCKED` vs `NEEDS_HUMAN`) and fixed in `AGENTS.md` and
+`personal-skills/solution-engineer/SKILL.md`. One methodology flaw in
+this round's own execution disclosed, not hidden: Task A's two runs
+were not against an identical starting state. Full evidence:
+`docs/field-tests/2026-08-19-cross-agent-contract-test.md`.
+
+All eleven items now carry a terminal status — none left "open, not
+yet scoped." See "Cycle closeout" below for the full crosswalk table.
+
+## Cycle closeout
+
+Every item terminal-status'd per the `ai-engineering/core/workflow.md`
+legend and crosswalked onto `AGENTS.md`'s terminal-status vocabulary,
+same discipline as `BACKLOG-v0.3.md`'s closeout:
+
+| Item | Local status | `AGENTS.md` crosswalk |
+|---|---|---|
+| 1 — Evidence linting | `DONE` | `DONE_VERIFIED` |
+| 2 — Protected-path detection | `DONE` | `DONE_VERIFIED` |
+| 3 — CI regression gate | `DONE` | `DONE_VERIFIED` |
+| 4 — Skill allowlist visibility | `DONE` | `DONE_VERIFIED` |
+| 5 — Evidence-and-limitations statement | `DONE` | `DONE_VERIFIED` |
+| 6 — Metrics + field-test template (design) | `DONE` | `DONE_VERIFIED` |
+| 6 — Tier 3 first execution | `DONE` | `DONE_VERIFIED` |
+| 7 — "AI-agnostic" overclaim correction | `DONE` | `DONE_VERIFIED` |
+| 8 — Direct-from-URL install | `DEFERRED` | `NEEDS_HUMAN` |
+| 9 — Unattended execution profile | `DEFERRED` | `NEEDS_HUMAN` |
+| 10 — Zero-install tier | `DONE` | `DONE_VERIFIED` |
+| 11 — Cross-agent contract test | `DONE` | `DONE_VERIFIED` |
+
+Items 8 and 9 crosswalk to `NEEDS_HUMAN`, not a rounded-up
+`CONDITIONAL_PASS` — the crosswalk rule requires a round or owner
+already assigned for `CONDITIONAL_PASS`, and neither has one yet. Same
+honest application as `BACKLOG-v0.3.md`'s own closeout, not relaxed now
+that it's inconvenient twice in a row.
+
+**Overall status for this cycle's closeout:** `DONE_VERIFIED` — every
+item above has an explicit terminal status and crosswalk, `CHANGELOG.md`
+and `VERSION` are updated in the same commit per the versioning rule.
+**Open follow-up for a human:** schedule Items 8 and 9 into a future
+backlog (v1.2 or later, not yet seeded).
