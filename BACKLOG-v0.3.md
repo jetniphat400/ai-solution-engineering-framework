@@ -79,24 +79,33 @@ maintain and isn't needed to prove the tiered-adoption model first.
 audit's "these look identical" claim) can be restated as settled fact
 across turns or sessions with no confidence tag attached, and nothing
 in `/engineer`, `redteam`, or the verification contract requires a
-claim to carry a `verified` / `inferred` / `flagged-not-verified` label
-as it moves from one agent's output into a persisted document or a
-later turn. Pilot #2 hit this twice independently — once as a repeat
-of pilot #1's friction #19 (`frontend/AGENTS.md` false alarm), and once
-as a standing pattern where five inherited "identical" dedup claims in
-a row needed literal re-verification and four of five turned out wrong
-or incomplete, with no rule requiring the re-check in the first place.
+claim to carry a confidence label as it moves from one agent's output
+into a persisted document or a later turn. Pilot #2 hit this twice
+independently — once as a repeat of pilot #1's friction #19
+(`frontend/AGENTS.md` false alarm), and once as a standing pattern
+where five inherited "identical" dedup claims in a row needed literal
+re-verification and four of five turned out wrong or incomplete, with
+no rule requiring the re-check in the first place.
 
 **Proposal:** Define a confidence-label convention that travels with a
 claim wherever it's persisted or restated (register entries, review
 comments, findings docs), plus a standing rule that any inherited
 audit/dedup/"identical" claim must be re-derived from current code —
 and re-checked against real data when money or scoring is involved —
-before it's acted on.
+before it's acted on. Reuses the framework's existing `verified` /
+`inferred` / `unknown` vocabulary (already defined in the `engineer`
+skill's DETECT step) rather than inventing a new label set — caught
+during Round 1, see "Lessons from Round 1" below.
 
 **Size:** M — touches `ai-engineering/core/verification.md` and
 `ai-engineering/core/redteam.md`, needs worked examples from both
 field-test reports to anchor the convention.
+
+**Status:** DONE (Round 1). `ai-engineering/core/verification.md` gained
+a "Claim confidence labels" section anchored to pilot #2's evidence;
+`ai-engineering/core/redteam.md`'s universal rule now requires the same
+label on findings; `.claude/skills/engineer/SKILL.md` now references
+`verification.md` as the canonical definition instead of restating it.
 
 ### Item 4 — Named Gate procedure
 
@@ -171,3 +180,54 @@ before ending the session, and never leave a server or process running
 with it set.
 
 **Size:** S.
+
+**Status:** DONE (Round 1). New bullet in `ai-engineering/core/security.md`,
+placed alongside the credential-isolation bullet.
+
+## Round 1 — confidence labels + bypass hygiene
+
+Closes Items 3 and 6 against pilot #2's frictions #1, #2, and #4.
+
+- **Claim confidence labels (Item 3)** — new `## Claim confidence
+  labels` section in `ai-engineering/core/verification.md`, promoting
+  the `verified`/`inferred`/`unknown` vocabulary that previously only
+  existed inside the `engineer` skill's DETECT step into a standing
+  verification-contract rule: any claim inherited from a prior
+  audit/pass starts at most `inferred` and must be re-derived from
+  current code (and real data, for money/scoring paths) before being
+  treated as `verified`. Anchored directly to pilot #2's evidence (the
+  five-in-a-row re-verification record, and the `frontend/AGENTS.md`
+  re-surfacing case shared with pilot #1 friction #19). **DONE.**
+- **Redteam findings carry the same label (Item 3, cross-reference)** —
+  `ai-engineering/core/redteam.md`'s universal rule now requires a
+  confidence label alongside the existing file:line evidence
+  requirement, pointing back at `verification.md` rather than
+  restating the vocabulary. **DONE.**
+- **Temporary security-bypass hygiene (Item 6)** — new bullet in
+  `ai-engineering/core/security.md`: state explicitly in verification
+  evidence when a security control is temporarily disabled, restore it
+  before the session ends, never leave a server running with it set.
+  **DONE.**
+
+## Lessons from Round 1
+
+- **In-round consistency fix, caught before it shipped:** Item 3's own
+  seed text (written when this backlog was reconciled against pilot
+  #2) proposed a fourth label, `flagged-not-verified`, without
+  checking whether the framework already had a labeling convention. It
+  does — `verified`/`inferred`/`unknown`, defined in
+  `.claude/skills/engineer/SKILL.md`'s DETECT step and used by
+  `context-mapping.md`. Fixed in Item 3's own text above, before
+  implementation, to reuse the existing three labels rather than ship
+  a fourth competing term.
+- **The vocabulary was defined in the wrong layer.** `SKILL.md` is a
+  Claude Code adapter file; `ai-engineering/core/verification.md` is
+  the vendor-neutral core the adapter is supposed to draw from. The
+  confidence-label convention had been defined only in the adapter,
+  backwards from the framework's own layering — and that's exactly why
+  no *core* rule required it for claims in general (audit/dedup
+  findings, redteam findings), only for one skill's scenario/task
+  detection. Moved the definition to `verification.md` and changed
+  `SKILL.md` to reference it instead of restating it — the same
+  delegate-instead-of-duplicate fix Round 3b applied to
+  `setup-configure.md` -> `context-mapping.md`.

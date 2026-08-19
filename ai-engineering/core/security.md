@@ -10,4 +10,5 @@
 - Scan secrets and dependencies in CI. [established practice — shift-left security scanning, SAST/SCA practice]
 - Audit and pin third-party plugins, scripts, hooks, and MCP servers. [established practice — supply-chain pinning discipline; see `ai-engineering/policies/skill-supply-chain.md` for the full procedure]
 - Keep production identities and credentials outside coding-agent sessions. [established practice — least privilege / credential isolation]
+- When verification requires temporarily disabling a security control (e.g., an auth-bypass flag) to exercise a code path, state so explicitly in the verification evidence, restore the control before the session ends, and never leave a server or process running with it enabled. [established practice — least exposure / break-glass access hygiene: log and time-box any temporary control relaxation]
 - Require human approval for security exceptions and destructive operations. [established practice — change-management approval gates]

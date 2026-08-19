@@ -58,7 +58,7 @@ Use when reviewing an architecture or design proposal before code exists.
 - Every attack surface applicable to the artifact under review must be attempted in the active mode's technique.
 - "No finding" is a valid recorded answer for a surface.
 - Silently omitting a surface is a violation of this review process, not an acceptable shortcut.
-- Findings require evidence (file:line where applicable) and land in the REDTEAM-REPORT template regardless of mode.
+- Findings require evidence (file:line where applicable) and a confidence label per `ai-engineering/core/verification.md`'s claim-confidence convention, and land in the REDTEAM-REPORT template regardless of mode.
 
 ## Severity and release rules
 

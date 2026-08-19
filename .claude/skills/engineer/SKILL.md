@@ -11,7 +11,7 @@ Collapse the framework's interface to one entry point without collapsing its mod
 
 ## DETECT
 
-Every claim carries a confidence label — `verified` (directly observed), `inferred` (derived from indirect signals), or `unknown` — plus the evidence behind it. Never silently upgrade `inferred` to `verified`.
+Every claim carries a confidence label per `ai-engineering/core/verification.md`'s claim-confidence convention — `verified`, `inferred`, or `unknown` — plus the evidence behind it. Never silently upgrade `inferred` or `unknown` to `verified`.
 
 ### Scenario: greenfield / existing / inherited
 
