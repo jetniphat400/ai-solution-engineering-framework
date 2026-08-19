@@ -1,6 +1,6 @@
 # Setup Guide
 
-Two install tiers, one GitHub source of truth. Pick one:
+Three install tiers, one GitHub source of truth. Pick one:
 
 - **Full** — the complete module tree: `ai-engineering/`'s policies and
   workflow modules, plus the Claude Code adapter (`.claude/skills`,
@@ -10,15 +10,23 @@ Two install tiers, one GitHub source of truth. Pick one:
 - **Light** — a single, evidence-filled `AGENTS.md` and nothing else.
   No module tree, no Claude Code skills. For a repo that wants the
   contract documented but not the machinery that enforces it.
+- **Zero-install** — a personal skill you install once, at your own
+  agent's skill directory, not per-repo. Carries this framework's
+  discipline into any repo you open, even one with no `AGENTS.md` —
+  and defers to a repo's own `AGENTS.md` the moment one is present.
+  No copy of anything lands in the target repo at all.
 
-Both tiers start from the same temporary source checkout and both end
-with that checkout deleted — neither leaves a long-lived clone behind.
-`/engineer` is the framework's single agent-driven entry point once
-either tier is installed: for a Full install, run `/engineer
-setup-install` and it executes Steps 1-3 below as `setup-preflight.md`,
-`setup-install.md`, and `setup-configure.md`, each gated on your
-approval. This page is the human-readable walkthrough for both tiers;
-the modules are canonical for Full if the two ever diverge.
+Full and Light both start from the same temporary source checkout and
+both end with that checkout deleted — neither leaves a long-lived clone
+behind. Zero-install is different in kind: it installs once, outside
+any project, and is never copied into a target repo (see its own
+section below). `/engineer` is the framework's single agent-driven
+entry point once Full or Light is installed: for a Full install, run
+`/engineer setup-install` and it executes Steps 1-3 below as
+`setup-preflight.md`, `setup-install.md`, and `setup-configure.md`,
+each gated on your approval. This page is the human-readable walkthrough
+for all three tiers; the modules are canonical for Full if the two
+ever diverge.
 
 ## Step 0: Get the framework source
 
@@ -249,3 +257,69 @@ already handles a locally-edited `AGENTS.md` (back up, surface the
 diff for a human merge, never silently overwrite), so upgrading is
 safe even though your `AGENTS.md` is no longer in its unfilled,
 just-installed state.
+
+## Zero-install
+
+### What Zero-install gives you, and what it gives up vs Full/Light
+
+Zero-install is a personal skill (`personal-skills/solution-engineer/`
+in this framework's source) — not a per-repo copy. Install it once at
+your own agent's personal skill location, and it carries this
+framework's discipline (classify, propose before acting, evidence over
+assumption, protected-asset awareness, adversarial review on demand)
+into any repository you open, with nothing copied into that repository
+at all.
+
+It does not give you:
+
+- A copy of `AGENTS.md`, `ai-engineering/`, or `.claude/` in the target
+  repo — the contract lives only in your own agent's skill directory,
+  not in the project, so it isn't visible to teammates or CI unless
+  they also install it themselves
+- The `/engineer` router's own module files (`setup-preflight.md`,
+  `onboard-*.md`, etc.) — Zero-install inlines a condensed version of
+  the lane, verification, and Gate rules directly in its own `SKILL.md`
+  and `references/`, since a Zero-install target has nothing to point
+  at
+- `.claude/settings.json`'s permission deny-rule baseline — nothing
+  installs that into a Zero-install target
+
+**The degradation rule:** if a repo you open already has its own
+`AGENTS.md` (Light or Full), that contract wins — the skill states
+plainly that it found one and defers to it, rather than applying its
+own classification and vocabulary. This isn't a special case invented
+for Zero-install; it's a direct application of this framework's own
+instruction-authority precedence order, which already ranks a
+repository's own instructions above a specialist skill or plugin.
+
+### When Zero-install is the right choice
+
+- You work across many repos, most of which will never get a Full or
+  Light install, and want the framework's discipline available anyway
+- A quick look at an unfamiliar repo, before deciding whether it's
+  worth a Light or Full install at all
+- You want the discipline for yourself, not necessarily documented for
+  the repo's other maintainers (a teammate without the skill installed
+  gets none of it — see "what it gives up" above)
+
+### Steps
+
+1. Copy `personal-skills/solution-engineer/` from this framework's
+   source (see Step 0 above to get the source) into your own coding
+   agent's personal skill location — for Claude Code, that's typically
+   `~/.claude/skills/solution-engineer/`. Consult your coding agent's
+   own documentation if the location differs.
+2. Delete the framework source checkout from Step 0 — same as Full and
+   Light, nothing needs to persist locally beyond the copied skill
+   folder itself.
+3. Open any repository and proceed normally. The skill checks first for
+   an existing `AGENTS.md` (the degradation rule above) before applying
+   its own classification.
+
+### Tested before shipping
+
+`personal-skills/solution-engineer/TEST-EVIDENCE.md` records 4
+scratch-repo scenarios this skill was run against before landing here
+(trivial change, an urgent request hiding a real risk, a prompt
+injection embedded in repository content, and a target repo with its
+own Light-tier `AGENTS.md` already present) — all 4 passed.

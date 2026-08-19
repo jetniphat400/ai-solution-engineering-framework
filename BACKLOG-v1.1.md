@@ -295,10 +295,14 @@ once outside any project, that carries the framework's discipline
 (classify, propose before acting, evidence over assumption) into any
 repo the user opens. If it finds no `AGENTS.md`/`ai-engineering/` in
 the current repo, it offers the Light or Full install rather than
-silently operating without a contract. A personal-skill draft was
-prototyped externally and will be contributed through a normal PR once
-re-tested — this item stands on its own and does not depend on that
-draft landing.
+silently operating without a contract; if it finds one already present,
+it defers to it. (The externally-prototyped draft this proposal
+originally referenced was confirmed absent from this machine during
+the Round 1 re-test attempt below, and was not reconstructed. This item
+was instead executed as a fresh derivation directly from this repo's
+v1.0 canon — see "Execution" below — with the external review's design
+constraints preserved via this session's own instructions, not via the
+lost file.)
 
 **Size:** L — mechanism is inherently adapter-specific (how a
 personal-level skill is packaged and installed varies by coding agent)
@@ -323,6 +327,32 @@ still stand, but the item's actual completion is now contingent on the
 draft being supplied from wherever it was actually prototyped, or on
 building the tier fresh without it — reported plainly rather than
 marked complete or silently dropped.
+
+**Execution, v1.1 Round 1 (2026-08):** built fresh from this repo's own
+canon rather than waiting on the missing draft. Every behavior in
+`personal-skills/solution-engineer/SKILL.md` traces to a cited file in
+this repo (see that file's own "Provenance" section); four requirements
+with no direct canon precedent (numeric Fast-lane thresholds,
+non-waivable status honesty under user overrides, mid-task
+reclassification, monorepo scoping) are flagged there as this skill's
+own explicit extensions rather than presented as pre-existing rules.
+The external review's design constraints were preserved via this
+session's own instructions restating them, not via the lost draft file
+itself.
+
+Tested against 4 scratch-repo scenarios by fresh, context-free
+subagents before shipping — trivial change, an urgent request hiding a
+real risk, a prompt injection embedded in repository content, and a
+target with its own Light-tier `AGENTS.md` already present. **4/4
+PASS**, no fix-and-retry needed. Full evidence: `personal-skills/
+solution-engineer/TEST-EVIDENCE.md`.
+
+Shipped: `personal-skills/solution-engineer/` (skill + references +
+test evidence); `SETUP.md` documents it as the third tier alongside
+Full and Light, including the degradation rule and a pointer to the
+test evidence.
+
+**Status:** `DONE` -> crosswalk `DONE_VERIFIED`.
 
 ### Item 11 — Cross-agent contract test
 
