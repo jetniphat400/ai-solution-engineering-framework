@@ -14,6 +14,43 @@ backlog in lockstep so a git-log-depth guess is never needed to answer
 "what version is this" (see Round 3a below, which existed to fix
 exactly that ambiguity).
 
+## 1.1.0
+
+Closes the v1.1 backlog (see `BACKLOG-v1.1.md`), theme "proof &
+enforcement" — three rounds:
+
+- **Round 1** — the `solution-engineer` zero-install skill, derived
+  fresh from v1.0 canon after the externally-prototyped draft was
+  confirmed lost (not reconstructed from it). Tested against 4
+  scratch-repo scenarios, 4/4 pass. `SETUP.md` documents it as the
+  third tier alongside Full and Light.
+- **Round 2** — four mechanical enforcement checkers
+  (`ai-engineering/checks/`): verification-evidence linting,
+  protected-path change detection, a CI regression-gate script and
+  example template, and skill-supply-chain allowlist visibility.
+  Validated against synthetic fixtures and, read-only, against the PCC
+  pilot repo — two real bugs found and fixed in the process (a bash
+  `set -e` silent-abort, a test-count digit-concatenation bug), plus a
+  pre-existing mismatch between `verification.md`'s stated evidence
+  format and `VERIFICATION-REPORT.template.md`'s actual table, found
+  and fixed before the checker could even be built against it.
+- **Round 3** — field test #3 (the PCC campaign's full closure, 58/58
+  items terminal, 112->219 tests, and the framework's first real
+  Tier-3 controlled comparison); two real gaps found in the Tier-3
+  protocol itself (wall-time incomparable across differing commit
+  granularity, an unbounded escaped-defects window) and fixed in
+  `docs/field-tests/TEMPLATE.md`; a cross-agent contract test (Claude
+  Code vs. one non-Anthropic agent, identical tasks) that matched on
+  7 of 8 scored dimensions and surfaced one real, now-fixed terminal-
+  status ambiguity (`SECURITY_BLOCKED` vs. `NEEDS_HUMAN`); `README.md`'s
+  "AI-agnostic" framing recalibrated to that evidence rather than left
+  as structural inspection alone.
+
+All 11 `BACKLOG-v1.1.md` items closed: 9 `DONE`, 2 `DEFERRED` (direct-
+from-URL install, an unattended-execution lane profile — both honestly
+crosswalked to `NEEDS_HUMAN`, no successor round assigned yet, per the
+same rule applied at the `v1.0.0` closeout).
+
 ## 1.0.0
 
 First public version. All items in the v0.3 backlog (see
