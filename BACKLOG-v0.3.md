@@ -7,6 +7,19 @@ the installer, conflict matrix, and onboard modules had all been
 proven against the field-test pilot. Not yet scoped into rounds —
 these are the two items on the table, recorded before they're lost.
 
+Items 3-6 below were added after reconciling
+`docs/field-tests/2026-08-19-pcc-pilot-2.md` (pilot #2: v0.2 in
+operation, the first full campaign run through `/engineer` after
+install — 56 findings, 40 executed, three lanes, one continuous
+session) against this backlog. Pilot #2's seven friction findings are
+all about coordination and vocabulary gaps that only surface at
+campaign scale, not about the install/distribution mechanics Items 1-2
+cover — so none of the seven were already addressed by an existing
+seed; all seven are absorbed below as four new items (frictions #1+#2
+combine into Item 3, #3 stands alone as Item 4, #5+#6+#7 combine into
+Item 5 since all three are large-register-vs-framework-contract
+mismatches, and #4 stands alone as Item 6).
+
 ## Items
 
 ### Item 1 — Tiered adoption
@@ -57,3 +70,104 @@ status, since it adds a new distribution mechanism to secure and
 maintain and isn't needed to prove the tiered-adoption model first.
 
 **Status:** Open, not yet scoped into a round.
+
+### Item 3 — Confidence-label convention for claims in flight
+
+**Source:** pilot #2 friction #1 + #2.
+
+**Problem:** An unverified finding (a subagent's suspicion, a prior
+audit's "these look identical" claim) can be restated as settled fact
+across turns or sessions with no confidence tag attached, and nothing
+in `/engineer`, `redteam`, or the verification contract requires a
+claim to carry a `verified` / `inferred` / `flagged-not-verified` label
+as it moves from one agent's output into a persisted document or a
+later turn. Pilot #2 hit this twice independently — once as a repeat
+of pilot #1's friction #19 (`frontend/AGENTS.md` false alarm), and once
+as a standing pattern where five inherited "identical" dedup claims in
+a row needed literal re-verification and four of five turned out wrong
+or incomplete, with no rule requiring the re-check in the first place.
+
+**Proposal:** Define a confidence-label convention that travels with a
+claim wherever it's persisted or restated (register entries, review
+comments, findings docs), plus a standing rule that any inherited
+audit/dedup/"identical" claim must be re-derived from current code —
+and re-checked against real data when money or scoring is involved —
+before it's acted on.
+
+**Size:** M — touches `ai-engineering/core/verification.md` and
+`ai-engineering/core/redteam.md`, needs worked examples from both
+field-test reports to anchor the convention.
+
+### Item 4 — Named Gate procedure
+
+**Source:** pilot #2 friction #3.
+
+**Problem:** The investigate → approve → study → decide pattern did
+real, traceable work twice in pilot #2's campaign (an explicit
+three-gate split for one item, and the same investigate-then-approve
+shape reused for a five-item money-path batch) — but it has no name or
+template anywhere in `ai-engineering/core/workflow.md` or the
+`engineer`/`redteam` skills. It was invented fresh mid-campaign and
+would have to be reinvented by the next one.
+
+**Proposal:** Name and template the pattern in `workflow.md` —
+"investigation gate," "study-only gate," "decision gate" — as a
+reusable procedure for cases where a proposed action needs a
+look-before-you-leap step distinct from the standard lane approval
+flow.
+
+**Size:** M.
+
+### Item 5 — Large-audit register conventions
+
+**Source:** pilot #2 friction #5 + #6 + #7.
+
+**Problem:** Three gaps surfaced only once a single audit produced 56
+findings across 40 executed items — a scale neither `AGENTS.md` nor
+`ISSUES.template.md` was written for:
+
+- The register's own local status legend (`DONE`/`OPEN`/`NEEDS
+  DECISION`/`CONTESTED`) never maps back onto `AGENTS.md`'s mandated
+  terminal-status vocabulary (`DONE_VERIFIED`, `CONDITIONAL_PASS`,
+  etc.) anywhere in either document.
+- Every finding carries a `Lane:` tag and Controlled-lane items
+  visibly got extra approval-gate treatment, but no document records
+  *how* each tag was assigned — so lane assignments can't be audited
+  for consistency after the fact, only trusted on the strength of
+  visibly different rigor.
+- The register's original informal numbering (bare numbers) collided
+  with `ISSUES.md`'s own authoritative issue numbers once five
+  findings were formalized, forcing a full renumber onto a separate
+  prefixed scheme to disambiguate.
+
+**Proposal:** Add guidance, scoped to any register-scale (multi-finding)
+audit, covering all three: use a distinct ID prefix from the start
+(never bare numbers) to avoid colliding with `ISSUES.md`'s numbering;
+require a one-line lane-assignment rationale per item; require a
+closing summary that maps the register's local legend onto
+`AGENTS.md`'s terminal-status vocabulary, even where per-item
+tracking stays local.
+
+**Size:** L — three related sub-asks, touches
+`ai-engineering/core/workflow.md`, `ISSUES.template.md`, and the
+"Completion status" section of `AGENTS.md`.
+
+### Item 6 — Temporary security-bypass hygiene
+
+**Source:** pilot #2 friction #4.
+
+**Problem:** Pilot #2's campaign temporarily used a protected
+auth-bypass flag as a verification tool (started servers with it set,
+called live endpoints, then stopped the servers) — handled responsibly
+this time, but entirely by ad hoc discipline. The framework names
+auth-bypass flags as protected assets but has no stated rule for the
+adjacent, very-likely-to-recur case: temporarily *using* such a flag
+for verification rather than permanently changing it.
+
+**Proposal:** Add a general rule to `ai-engineering/core/security.md`:
+when verification requires temporarily disabling a security control,
+state so explicitly in the verification evidence, restore the control
+before ending the session, and never leave a server or process running
+with it set.
+
+**Size:** S.
