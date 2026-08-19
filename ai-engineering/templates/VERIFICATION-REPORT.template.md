@@ -4,8 +4,8 @@
 
 ## Checks executed
 
-| Command or procedure | Result | Evidence | Remaining risk |
-|---|---|---|---|
+| Command or procedure | Result | Pass or fail | Evidence location | Remaining risk |
+|---|---|---|---|---|
 
 ## Checks not executed and reason
 

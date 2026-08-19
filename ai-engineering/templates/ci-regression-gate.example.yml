@@ -1,0 +1,51 @@
+# Example CI wrapper for ai-engineering/checks/check-verification-regression.sh.
+#
+# This is ONE concrete, adaptable reference -- not a mandated pipeline and
+# not tied to GitHub Actions as a requirement. The actual check logic lives
+# in the portable shell/PowerShell script; any CI system that can run a
+# shell command can call it the same way this file does. Swap the
+# `on:`/`runs-on:`/checkout step for your own CI provider's equivalent and
+# keep the two `check-verification-regression.sh` invocations.
+#
+# What this gate can and cannot catch: see the comment block at the top of
+# check-verification-regression.sh. In short -- it is a tripwire for cheap,
+# common shortcuts (a test-count drop, a suppression comment added, an
+# assertion removed with nothing added back), not a semantic guarantee that
+# nothing was weakened. A flag here means "a human should look."
+#
+# [REPLACE] TEST_COUNT_CMD below with a command specific to your project's
+# test runner that prints a single integer -- this script does not parse
+# any framework's own output format. Examples:
+#   pytest:      pytest --collect-only -q | tail -1 | grep -oE '[0-9]+'
+#   jest/npm:    npx jest --listTests | wc -l
+#   go test:     go test ./... -list '.*' | grep -c '^Test'
+name: verification-regression-gate
+
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  regression-gate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # full history, needed to diff against the base branch
+
+      # [REPLACE] with your project's dependency-install step, if any is
+      # needed for TEST_COUNT_CMD to run (e.g. `pip install -r requirements.txt`).
+
+      - name: Verification regression gate
+        run: |
+          bash ai-engineering/checks/check-verification-regression.sh \
+            --test-count-cmd "REPLACE_WITH_YOUR_TEST_COUNT_COMMAND" \
+            --baseline-file .ci/test-count-baseline.txt \
+            --diff-ref "origin/${{ github.base_ref }}"
+
+      # Optional: on a push to the base branch itself (not a PR), re-run
+      # with --update-baseline so the recorded count tracks a growing
+      # suite. Omitted here since it needs its own `on: push` job scoped
+      # to the base branch -- left as a [REPLACE] exercise per project,
+      # since baseline-update cadence is a project decision, not this
+      # template's to make.
