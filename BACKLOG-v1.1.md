@@ -309,6 +309,21 @@ open follow-up `BACKLOG-v0.3.md`'s cycle closeout named against this
 item — see that file's "Cycle closeout" section, updated to
 `CONDITIONAL_PASS` accordingly.
 
+**Re-test attempt, v1.1 Round 1 (2026-08):** the externally-prototyped
+draft this item's Proposal references was searched for on the machine
+running this session — `~/.claude/skills` (does not exist as a
+directory at all), `~/.agents/skills` (exists; contains only
+`find-skills` and `hallmark`, neither of which is it), and a broader
+home-directory search for anything named `*solution-engineer*` (no
+matches). The draft is not present here. Per this item's own
+instruction for that outcome, it was not reconstructed — no mock-repo
+scenarios were invented or run, and nothing was added under any
+zero-install path this round. The Round 1 assignment and owner above
+still stand, but the item's actual completion is now contingent on the
+draft being supplied from wherever it was actually prototyped, or on
+building the tier fresh without it — reported plainly rather than
+marked complete or silently dropped.
+
 ### Item 11 — Cross-agent contract test
 
 **Provenance:** planning session 2026-08.
