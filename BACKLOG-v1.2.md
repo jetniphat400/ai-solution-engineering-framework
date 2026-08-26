@@ -155,12 +155,16 @@ noting that escalating out of Fast also flips the wait behavior.
 
 **Size:** S.
 
-**Status:** `CONDITIONAL_PASS`. Executed as commit `df883d5` before
-this item was logged here. Remaining work: `.claude/skills/engineer/
-SKILL.md`'s PROPOSE section still requires "Confirm?" unconditionally
-for all lanes (confirmed by direct read, 2026-08-26) — inconsistent
-with the canon now stated in `processing-lanes.md`. Closing that gap is
-the first execution item of this cycle.
+**Status:** `CONDITIONAL_PASS` -> `DONE` -> crosswalk `DONE_VERIFIED`.
+Shipped as commit `df883d5`; remaining-work gap (`.claude/skills/
+engineer/SKILL.md`'s PROPOSE section still requiring "Confirm?"
+unconditionally for all lanes) closed as commit `e7c3b7c`, which
+lane-conditions that section with the same wording shipped in
+`personal-skills/solution-engineer/SKILL.md`. Post-fix, repo-wide grep
+for `Confirm\?` shows every occurrence is either lane-conditioned
+(`.claude/skills/engineer/SKILL.md`, `personal-skills/
+solution-engineer/SKILL.md`) or historical prose describing the
+now-fixed gap (this file). No remaining drift between the two skills.
 
 ### Item 6 — Wire existing checks as Claude Code hooks
 
