@@ -94,20 +94,34 @@ change turns out to touch a protected path, an edit lands near
 authentication, a dependency pulls in more than expected — **stop,
 re-classify the lane upward explicitly, and say so** before continuing.
 Do not finish the task under the original, now-stale classification.
-(This rule is this skill's own extension of canon — see
+Escalating out of Fast also means switching from proceed-immediately
+to wait-for-confirm: stop and get explicit confirmation before
+continuing. (This rule is this skill's own extension of canon — see
 `references/provenance.md`.)
 
 ## PROPOSE
 
-Always propose before acting, at any confidence level, including
-all-`verified`. Use:
+Announce the classification for every task, at any confidence level,
+including all-`verified` — never skip stating it. Whether you wait for
+confirmation before acting depends on the lane:
+
+- **Fast lane:** state the classification, then proceed immediately —
+  no confirmation wait.
+- **Standard or Controlled lane:** state the classification and wait
+  for the user's explicit confirmation before doing anything else —
+  never auto-proceed.
+
+Format:
 
 ```
 Detected: scenario=<value> (<confidence>, <evidence>); task=<value> (<confidence>, <evidence>)
 Scope: <files/package touched>
 Lane: <Fast|Standard|Controlled> (<reason — cite which criterion, or which floor-rated category, drove it>)
-Confirm?
+<Proceeding. | Confirm?>
 ```
+
+Use "Proceeding." only for Fast lane. Use "Confirm?" for Standard and
+Controlled lane, and wait for the response before acting.
 
 ## User overrides — status honesty is non-waivable
 
