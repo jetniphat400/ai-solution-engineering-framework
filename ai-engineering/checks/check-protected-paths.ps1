@@ -5,7 +5,12 @@
 # protection described only as a behavior with no extractable path.
 #
 # Default mode diffs staged changes (git diff --cached --name-only) --
-# suitable as a pre-commit hook. -Ref diffs against a given ref instead.
+# suitable as a pre-commit hook. -Ref diffs against a given ref
+# instead. -LiteralPath checks exactly one literal path with no git
+# diff at all -- added for the PreToolUse hook wrapper
+# (ai-engineering/checks/hooks/pretooluse-protected-path.ps1), which is
+# handed a single file path per tool call. -LiteralPath and -Ref are
+# mutually exclusive. Does not change the default or -Ref behavior.
 #
 # What this does NOT do: verify a flagged change was actually approved
 # (only that contact happened); reliably extract a protection described
@@ -17,10 +22,16 @@
 param(
     [switch]$Advisory,
     [string]$Ref,
-    [string]$AgentsFile = "AGENTS.md"
+    [string]$AgentsFile = "AGENTS.md",
+    [string]$LiteralPath
 )
 
 $ErrorActionPreference = "Stop"
+
+if ($LiteralPath -and $Ref) {
+    Write-Host "-LiteralPath and -Ref are mutually exclusive."
+    exit 2
+}
 
 if (-not (Test-Path $AgentsFile)) {
     Write-Host "No $AgentsFile found -- nothing to check against. Not an error: a repo with no AGENTS.md has no protected-paths list to enforce."
@@ -70,7 +81,9 @@ if (-not $tokens -or $tokens.Count -eq 0) {
 Write-Host "Protected-path tokens recognized:"
 foreach ($t in $tokens) { Write-Host "  - $t" }
 
-if ($Ref) {
+if ($LiteralPath) {
+    $changed = @($LiteralPath)
+} elseif ($Ref) {
     $changed = git diff --name-only $Ref 2>$null
 } else {
     $changed = git diff --cached --name-only 2>$null

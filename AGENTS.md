@@ -96,8 +96,17 @@ Do not change these without explicit human approval:
 Project-specific protected paths:
 
 ```text
-[ADD PATHS]
+AGENTS.md
+ai-engineering/policies/
+ai-engineering/checks/
+.claude/settings.json
 ```
+
+Rationale (BACKLOG-v1.2 Item 6): the files that define what is
+protected must themselves be protected, or a change could quietly
+narrow its own protection. `ai-engineering/core/` is deliberately
+excluded — routine workflow edits would be blocked too often; revisit
+if that proves wrong.
 
 ## Verification contract
 

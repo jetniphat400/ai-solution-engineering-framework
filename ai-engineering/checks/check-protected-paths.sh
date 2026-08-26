@@ -6,11 +6,17 @@
 # protection described only as a behavior with no extractable path.
 #
 # Usage:
-#   check-protected-paths.sh [--advisory] [--ref REF] [--agents-file PATH]
+#   check-protected-paths.sh [--advisory] [--ref REF] [--agents-file PATH] [--path PATH]
 #
 # Default mode diffs staged changes (git diff --cached --name-only) --
 # suitable as a pre-commit hook. --ref diffs against a given ref
-# instead (e.g. for CI, --ref origin/main).
+# instead (e.g. for CI, --ref origin/main). --path checks exactly one
+# literal path with no git diff at all -- added for the PreToolUse hook
+# wrapper (ai-engineering/checks/hooks/pretooluse-protected-path.sh),
+# which is handed a single file path per tool call, not a diff. --path
+# and --ref are mutually exclusive. This mode does not change the
+# default or --ref behavior in any way -- both remain byte-for-byte
+# what they were for existing manual/CI callers.
 #
 # What this does NOT do: verify a flagged change was actually approved
 # (only that contact happened); reliably extract a protection described
@@ -24,15 +30,22 @@ set -euo pipefail
 ADVISORY=0
 REF=""
 AGENTS_FILE="AGENTS.md"
+LITERAL_PATH=""
 
 while [ "$#" -gt 0 ]; do
   case "$1" in
     --advisory) ADVISORY=1; shift ;;
     --ref) REF="$2"; shift 2 ;;
     --agents-file) AGENTS_FILE="$2"; shift 2 ;;
+    --path) LITERAL_PATH="$2"; shift 2 ;;
     *) echo "Unknown argument: $1" >&2; exit 2 ;;
   esac
 done
+
+if [ -n "$LITERAL_PATH" ] && [ -n "$REF" ]; then
+  echo "--path and --ref are mutually exclusive." >&2
+  exit 2
+fi
 
 if [ ! -f "$AGENTS_FILE" ]; then
   echo "No $AGENTS_FILE found -- nothing to check against. Not an error: a repo with no AGENTS.md has no protected-paths list to enforce."
@@ -54,10 +67,19 @@ fi
 TOKENS_RAW=$(
   while IFS= read -r line; do
     # Quoted phrases first (handles embedded spaces, e.g. "Stop PCC.bat").
-    echo "$line" | grep -oE '"[^"]+"' | sed -E 's/^"//; s/"$//'
+    # `|| true` on both greps below is required, not decorative: under
+    # `set -e`, a bare pipeline ending in "no match" (grep's normal,
+    # expected exit 1 when a line has no quoted/path-shaped token) abo
+    # rts this whole command substitution silently -- discovered as a
+    # real, pre-existing bug: any AGENTS.md whose protected-paths block
+    # has no extractable token (e.g. still the "[ADD PATHS]" placeholder)
+    # made this script exit 1 with NO output at all, instead of the
+    # "nothing to check against" message its own later exit-0 branch
+    # documents. Fixed here rather than only worked around.
+    echo "$line" | grep -oE '"[^"]+"' | sed -E 's/^"//; s/"$//' || true
     # Then bare path-shaped tokens from the line with quotes stripped out.
     stripped=$(echo "$line" | sed -E 's/"[^"]+"//g')
-    echo "$stripped" | grep -oE '[A-Za-z0-9_./-]+\.[A-Za-z0-9]+|[A-Za-z0-9_./-]*/[A-Za-z0-9_./-]+' | sed -E 's/[,;:)]+$//'
+    echo "$stripped" | grep -oE '[A-Za-z0-9_./-]+\.[A-Za-z0-9]+|[A-Za-z0-9_./-]*/[A-Za-z0-9_./-]+' | sed -E 's/[,;:)]+$//' || true
   done <<< "$BLOCK"
 )
 
@@ -81,7 +103,9 @@ fi
 echo "Protected-path tokens recognized:"
 for t in "${TOKENS[@]}"; do echo "  - $t"; done
 
-if [ -n "$REF" ]; then
+if [ -n "$LITERAL_PATH" ]; then
+  CHANGED="$LITERAL_PATH"
+elif [ -n "$REF" ]; then
   CHANGED=$(git diff --name-only "$REF" 2>/dev/null || true)
 else
   CHANGED=$(git diff --cached --name-only 2>/dev/null || true)

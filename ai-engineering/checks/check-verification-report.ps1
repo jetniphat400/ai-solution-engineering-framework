@@ -17,7 +17,7 @@ param(
 )
 
 $ErrorActionPreference = "Stop"
-$Fields = @("Command or procedure", "Result", "Pass or fail", "Evidence location", "Remaining risk")
+. (Join-Path $PSScriptRoot "lib\evidence-fields.ps1")
 
 if (-not $Path -or $Path.Count -eq 0) {
     $Path = Get-ChildItem -Path . -Recurse -Filter "*VERIFICATION-REPORT*.md" -File |
@@ -28,27 +28,6 @@ if (-not $Path -or $Path.Count -eq 0) {
 if (-not $Path -or $Path.Count -eq 0) {
     Write-Host "No VERIFICATION-REPORT-shaped files found."
     exit 0
-}
-
-function Test-ColonList {
-    param([string[]]$Lines, [string]$File)
-    $found = $false
-    $problem = $false
-    foreach ($field in $Fields) {
-        $pattern = "^[\s>*-]*" + [regex]::Escape($field) + ":\s*(.*)$"
-        $match = $Lines | Select-String -Pattern $pattern | Select-Object -First 1
-        if ($match) {
-            $value = $match.Matches[0].Groups[1].Value.Trim()
-            if ($value.Length -eq 0) {
-                Write-Host "  MISSING VALUE: '$field`:' present but empty in $File"
-                $problem = $true
-            }
-            $found = $true
-        }
-    }
-    if ($found -and -not $problem) { return 0 }
-    if ($found) { return 2 }
-    return 1
 }
 
 function Test-Table {

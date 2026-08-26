@@ -14,6 +14,10 @@
 # not something this script tries to guess at.
 set -euo pipefail
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck source=lib/evidence-fields.sh
+source "$SCRIPT_DIR/lib/evidence-fields.sh"
+
 STRICT=0
 FILES=()
 for arg in "$@"; do
@@ -34,27 +38,7 @@ if [ "${#FILES[@]}" -eq 0 ]; then
   exit 0
 fi
 
-FIELDS=("Command or procedure" "Result" "Pass or fail" "Evidence location" "Remaining risk")
 ANY_PROBLEM=0
-
-check_colon_list() {
-  local file="$1"
-  local found=0
-  local problem=0
-  for field in "${FIELDS[@]}"; do
-    # Match "Field:" at line start, optionally with leading ">" (blockquote) or "- " (list), then require non-whitespace after the colon.
-    if grep -qiE "^[[:space:]>*-]*${field}:[[:space:]]*$" "$file"; then
-      echo "  MISSING VALUE: '$field:' present but empty in $file"
-      problem=1
-      found=1
-    elif grep -qiE "^[[:space:]>*-]*${field}:[[:space:]]*[^[:space:]]" "$file"; then
-      found=1
-    fi
-  done
-  [ "$found" -eq 1 ] && [ "$problem" -eq 0 ] && return 0
-  [ "$found" -eq 1 ] && return 2
-  return 1
-}
 
 check_table() {
   local file="$1"
