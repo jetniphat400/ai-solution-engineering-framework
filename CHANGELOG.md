@@ -26,6 +26,21 @@ retired that vocabulary in favor of `AGENTS.md`'s terminal statuses
 used directly everywhere; see `docs/field-tests/
 2026-08-26-status-vocabulary-study.md` for the study and decision.
 
+`BACKLOG-v1.2.md` Item 6 wired `AGENTS.md`'s protected-paths rule and
+completion-status contract into real Claude Code hooks
+(`.claude/settings.json`): a `PreToolUse` hook blocking
+`Edit`/`Write`/`MultiEdit` on protected paths (now populated:
+`AGENTS.md`, `ai-engineering/policies/`, `ai-engineering/checks/`,
+`.claude/settings.json`), and a `Stop` hook requiring exactly one
+terminal status and the five-field evidence block on any turn that
+modified the repository. Verified with real, live hook invocations
+during implementation, not only inspection — see
+`ai-engineering/checks/TEST-EVIDENCE.md`'s Item 6 entry and
+`ai-engineering/adapters/claude/hooks.md` for the full design,
+independent-review findings, and stated limitations (most notably: the
+`PreToolUse` hook only covers `Edit`/`Write`/`MultiEdit` — a `Bash`
+write to a protected path is not covered at all).
+
 ## 1.1.0
 
 Closes the v1.1 backlog (see `BACKLOG-v1.1.md`), theme "proof &

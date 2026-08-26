@@ -186,8 +186,65 @@ with `.sh`.
 
 **Size:** M.
 
-**Status:** open — unscheduled. Logged only, per explicit instruction
-not to act this round.
+**Status:** `DONE_VERIFIED`. Implemented substantially beyond the
+original proposal, with explicit human confirmation at each phase: a
+`PreToolUse` hook on `Edit`/`Write`/`MultiEdit` blocking edits to
+`AGENTS.md`'s newly-populated "Project-specific protected paths" block
+(`AGENTS.md`, `ai-engineering/policies/`, `ai-engineering/checks/`,
+`.claude/settings.json`); a `UserPromptSubmit` hook recording a
+per-session `git status` baseline; a `Stop` hook enforcing exactly one
+terminal status and the five-field evidence block, but only on a turn
+that actually modified the repository — added specifically to avoid
+deadlocking ordinary conversation turns (design note (iv), not in the
+original proposal); an `AI_ENGINEERING_PROTECTED_PATH_OVERRIDE` env-var
+override with no permanent allowlist; a self-maintained loop-guard
+counter substituting for `stop_hook_active`, confirmed absent from the
+installed version's (`2.1.246`) hooks documentation by direct,
+repeated search rather than assumed present; every hook registered
+twice per event (bash + PowerShell exec-form entries) for cross-platform
+coverage.
+
+Verified with real hook invocations, not inspection: a real `Edit` tool
+call against a real newly-protected path was actually intercepted and
+blocked live, twice, in the course of this item's own work (not a
+drill); the override, Stop-hook block, Stop-hook pass, and the
+no-edit-turn deadlock-avoidance case were each verified either live or
+at script level against this repo's real files and real git state (see
+`ai-engineering/checks/TEST-EVIDENCE.md`'s Item 6 entry for the full
+breakdown of which). An independent-reviewer pass on the full diff
+returned `CONDITIONAL PASS`; findings M1 (a nested `powershell.exe`
+call could fail closed on every edit on a restrictive-policy host), M3
+(a bash/PowerShell case-sensitivity asymmetry), and L2 (a missing
+word-boundary anchor) were fixed and re-verified. Findings H1
+(deadlock-avoidance is conditional on `session_id` extraction
+succeeding — no safe alternative exists), M2 (dual-fire's shared-state
+race, bounded consequence), L1 (an edit-then-revert nets to a clean
+diff and skips enforcement), and L3 (Windows-only path style, correct
+for this design's target) were documented as accepted limitations
+rather than fixed, with reasoning in
+`ai-engineering/adapters/claude/hooks.md`.
+
+**H2, kept prominent rather than buried**: the `PreToolUse` hook only
+matches `Edit`/`Write`/`MultiEdit`, exactly as scoped — a `Bash`-tool
+write to a protected path is not covered at all, with no block, no
+warning, and no override needed. This is not a hidden gap: it was
+exercised live as a legitimate workaround during this item's own
+implementation (several edits to newly-protected files, including this
+entry, were made via `Bash` specifically because the hook correctly
+blocked the `Edit` tool from making them). Protected-path enforcement
+via this mechanism should be read as "enforced for the three matched
+tools," not "enforced," full stop.
+
+Two more real, pre-existing/newly-introduced bugs were found and fixed
+during implementation, unrelated to the review findings above: (1)
+`check-protected-paths.sh` crashed silently under `set -e` whenever the
+protected-paths block had no path-shaped token — exactly this repo's
+own placeholder state before this item populated it; (2) both new
+PowerShell wrapper scripts wrote their per-session state files with a
+UTF-8 BOM via `Out-File -Encoding utf8`, which `Get-Content` masks on a
+PowerShell-only round trip but which would corrupt a `bash` reader's
+numeric/string comparisons in the dual-fire case — found by inspecting
+a real state file's raw bytes, fixed with explicit BOM-less encodings.
 
 ### Item 7 — Claude Code adapter playbook and lane runtime profiles
 
