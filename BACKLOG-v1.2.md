@@ -347,9 +347,19 @@ when executed.
 
 **Size:** S.
 
-**Status:** `NOT_STARTED` -> crosswalk `NEEDS_HUMAN`. Logged only, per
-explicit instruction not to act this round; not run this cycle. No
-round or owner assigned yet.
+**Status:** `NOT_STARTED` -> `NEEDS_DECISION` -> crosswalk `NEEDS_HUMAN`.
+Study-only gate run 2026-08-26; full report:
+`docs/field-tests/2026-08-26-status-vocabulary-study.md`. Per this
+gate type's own definition (`ai-engineering/core/workflow.md`'s
+"Study-only gate"), it gathers evidence and always closes
+`NEEDS_DECISION` — it informs the decision, it does not make one. A
+decision-owner's call on which of the four candidate designs (or none)
+to pursue is still pending. One new finding surfaced during the study,
+not previously recorded: every real `NOT_STARTED` item in this file
+crosswalks to `NEEDS_HUMAN` in practice, not the defined
+`REPLAN_REQUIRED` (see the report's §2) — flagged for the
+decision-owner, not corrected here, since correcting it is itself a
+decision this gate is not authorized to make.
 
 ### Item 12 — Compatibility record
 
