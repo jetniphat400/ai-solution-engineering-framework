@@ -106,7 +106,7 @@ name a Claude-specific command.
 
 **Size:** L.
 
-**Status:** open — scheduled this cycle.
+**Status:** open — scheduled this round.
 
 ### Item 4 — Provenance extraction from solution-engineer SKILL.md
 
@@ -340,19 +340,21 @@ when executed.
 
 **Size:** S.
 
-**Status:** `NOT_STARTED` -> `NEEDS_DECISION` -> crosswalk `NEEDS_HUMAN`.
-Study-only gate run 2026-08-26; full report:
-`docs/field-tests/2026-08-26-status-vocabulary-study.md`. Per this
-gate type's own definition (`ai-engineering/core/workflow.md`'s
-"Study-only gate"), it gathers evidence and always closes
-`NEEDS_DECISION` — it informs the decision, it does not make one. A
-decision-owner's call on which of the four candidate designs (or none)
-to pursue is still pending. One new finding surfaced during the study,
-not previously recorded: every real `NOT_STARTED` item in this file
-crosswalks to `NEEDS_HUMAN` in practice, not the defined
-`REPLAN_REQUIRED` (see the report's §2) — flagged for the
-decision-owner, not corrected here, since correcting it is itself a
-decision this gate is not authorized to make.
+**Status:** The study-only gate closed `NEEDS_HUMAN` on 2026-08-26; full
+report: `docs/field-tests/2026-08-26-status-vocabulary-study.md`. Per
+this gate type's own definition (`ai-engineering/core/workflow.md`'s
+"Study-only gate"), it gathered evidence and informed the decision
+without making one. The decision gate ran the same day and chose
+design (b) — retire the local vocabulary and crosswalk table, use
+`AGENTS.md`'s terminal statuses everywhere — recorded in the study
+report's "## Decision" section (commit `7275d03`). Implementation
+landed in commit `77d5c11` (`AGENTS.md`, `ai-engineering/core/
+workflow.md`, `personal-skills/solution-engineer/SKILL.md` and its
+`references/` files, and this file's other items). Independent review
+found this item's own status paragraph had not been updated to match
+(CONDITIONAL PASS, finding B1); that gap and the review's other
+findings (M1, M2, L2) were remediated in a follow-up commit before this
+item closed.
 
 ### Item 12 — Compatibility record
 

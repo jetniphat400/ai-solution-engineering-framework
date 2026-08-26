@@ -380,3 +380,17 @@ Implementation: `ai-engineering/core/workflow.md`, `AGENTS.md`,
 files, and `BACKLOG-v1.2.md`'s own item statuses were updated to match;
 full diff and verification in the commits closing `BACKLOG-v1.2.md`
 Item 11.
+
+**Semantic change, not a pure rename:** under the old crosswalk, a
+deferred item with no round or owner assigned still closed with a
+terminal status (`DEFERRED` mapped to `NEEDS_HUMAN`). Under design (b),
+the same case is deliberately *not* closed with any terminal status —
+it uses the plain-prose open-item convention (`Status: open —
+unscheduled`) instead, and stays open until it is either scheduled or
+actually decided. This was accepted, not merely inherited from the
+rename, because a terminal status is meant to mean the gate or item has
+finished running, and an unscheduled deferral has not finished
+anything — it is exactly the "still waiting for a human to schedule or
+decide" state, which forcing into `NEEDS_HUMAN` obscured rather than
+clarified. `BACKLOG-v1.2.md`'s own items (e.g. 1, 2, 6, 7, 9, 10, 12)
+apply this consistently.
