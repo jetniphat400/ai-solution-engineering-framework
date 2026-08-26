@@ -642,3 +642,48 @@ before/after evidence and the complete verdict:
 `ai-engineering/checks/TEST-EVIDENCE.md`'s Item 14 entry and
 `ai-engineering/adapters/claude/hooks.md`'s "Independent review
 findings (Item 14, FAIL → remediated)" section.
+
+## Cycle closeout
+
+Every item carries its current, honest state — no local status
+vocabulary or crosswalk (retired by Item 11's decision; every status
+below is one of `AGENTS.md`'s terminal statuses directly, or the
+plain-prose open-item convention for unfinished work):
+
+| Item | Status |
+|---|---|
+| 1 — Zero-install skill has no sync story | open — unscheduled |
+| 2 — Direct-from-URL install | open — unscheduled |
+| 3 — Unattended execution profile | open — scheduled this round |
+| 4 — Provenance extraction from solution-engineer SKILL.md | `DONE_VERIFIED` |
+| 5 — Lane-conditioned confirmation | `DONE_VERIFIED` |
+| 6 — Wire existing checks as Claude Code hooks | `DONE_VERIFIED` |
+| 7 — Claude Code adapter playbook and lane runtime profiles | open — unscheduled |
+| 8 — Reviewer model contradicts model-tiers policy | `DONE_VERIFIED` |
+| 9 — Requirements intake before classification | open — unscheduled |
+| 10 — Single-owner mode | open — unscheduled |
+| 11 — Status vocabulary simplification | `DONE_VERIFIED` |
+| 12 — Compatibility record | open — unscheduled |
+| 13 — Multi-agent contract and Claude agent-teams profile | open — scheduled this cycle, after Items 6, 7, and 3 |
+| 14 — Item 6 hook defects found in live use | `DONE_VERIFIED` |
+
+**This release closes a partial cycle, stated plainly rather than
+rounded up.** Six of fourteen items closed `DONE_VERIFIED`: the
+mechanical-enforcement and policy-correction items (4, 5, 6, 8, 11,
+14) — the ones that made an existing rule actually enforced, or fixed
+a concrete contradiction, or corrected a factual gap. The remaining
+eight (1, 2, 3, 7, 9, 10, 12, 13) — the adapter playbook, the
+workflow-process items (single-owner mode, requirements intake), the
+zero-install sync story, the compatibility record, the unattended
+execution profile, and the multi-agent contract — did not ship this
+cycle. Unlike `BACKLOG-v1.1.md`'s closeout, this is not "every item
+closed, two honestly deferred to `NEEDS_HUMAN`" — it is a genuine
+majority of the backlog left open. That is not a failure of this
+cycle so much as a description of what v1.2 actually did: it enforced
+what v1.0/v1.1 had only asked for voluntarily (protected paths,
+completion-status contracts), and it did not attempt the adapter/
+workflow items in the same pass. **Overall status for this cycle's
+closeout:** `CONDITIONAL_PASS` — the six shipped items are each fully
+`DONE_VERIFIED` on their own evidence, but the cycle as a whole did not
+complete its full scope; the eight open items carry forward into
+`BACKLOG-v1.3.md`, in the recommended order recorded there.
