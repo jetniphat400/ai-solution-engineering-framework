@@ -388,3 +388,106 @@ before trusting the playbook's command list.
 
 **Status:** open — unscheduled. Logged only, per explicit instruction
 not to act this round.
+
+### Item 13 — Multi-agent contract and Claude agent-teams profile
+
+**Provenance:** external research 2026-08-26 — Claude Code agent-teams
+docs (`https://code.claude.com/docs/en/agent-teams`), Cemri et al. 2025
+"Why Do Multi-Agent LLM Systems Fail?" (MAST, arXiv 2503.13657), SEMAP
+(arXiv 2510.12120).
+
+**Problem:** The framework has one multi-agent mechanism
+(`independent-reviewer` as a fresh-context subagent) and no rules for
+anything beyond it: no status aggregation across agents, no handoff
+format, no file-ownership rule, no lane rule for parallel work. MAST's
+three failure categories (specification, inter-agent misalignment,
+task verification) are the same three problems this framework already
+targets for single agents, but none of its controls are stated for the
+multi-agent case. Enabling agent teams without those rules would let a
+lead report `DONE_VERIFIED` over a teammate's `CONDITIONAL_PASS`, which
+breaks the framework's central guarantee.
+
+**Premises verified before writing this item** (installed Claude Code
+`2.1.246`, docs fetched 2026-08-26, describing behavior "as of
+v2.1.178" — the installed version postdates every version note on the
+page, so no version mismatch applies): agent teams are experimental
+and disabled by default, enabled by `CLAUDE_CODE_EXPERIMENTAL_AGENT_
+TEAMS=1` — confirmed verbatim. No nested teams ("teammates cannot spawn
+their own teammates"), the lead is fixed for the session's lifetime,
+and a teammate cannot be promoted to lead or given leadership —
+confirmed verbatim (`Limitations` section). A subagent definition from
+project, user, plugin, or CLI scope — including `.claude/agents/
+independent-reviewer.md`, confirmed present in this repo — can be
+referenced by name to spawn a teammate with that definition's `tools`
+allowlist and `model`, its body appended as additional system-prompt
+instructions — confirmed ("Use subagent definitions for teammates"),
+with one caveat: the definition's `skills` and `mcpServers` frontmatter
+fields are NOT applied when it runs as a teammate — a fidelity gap part
+(b) must document. The lead can require plan approval from a teammate
+and be given approval criteria in the spawn prompt, but "the lead makes
+approval decisions autonomously" — confirmed, and worth stating plainly
+in part (b): the lead's approval is a judgment call guided by criteria,
+not a mechanical gate. `TeammateIdle` and `TaskCompleted` hooks exist
+and exit code 2 blocks — confirmed, with a nuance: `TeammateIdle`'s
+exit-2 "sends feedback and keeps the teammate working" (it blocks the
+teammate going idle, not a task closing), while `TaskCompleted`'s
+exit-2 "prevents completion and sends feedback" (it blocks the task
+itself) — these are two different block points, not interchangeable,
+and part (b)'s hook wiring must use `TaskCompleted` for the
+evidence-block gate, not `TeammateIdle`. Teammates cannot approve
+permissions on the user's behalf or relay a denied action to bypass the
+check — confirmed verbatim ("Messages between agents"). No premise
+required correction; all six are accurate as given, with the two
+caveats above (skills/MCP-server fidelity, the two distinct hook block
+points) folded into part (b)'s scope rather than dropped.
+
+**Proposal, part (a)** — `ai-engineering/policies/multi-agent-contract.md`,
+vendor-neutral:
+
+1. Status aggregation: an orchestrator's terminal status can never be
+   higher than the lowest terminal status of any agent whose work it
+   includes.
+2. Handoff contract: every inter-agent result uses the existing
+   five-field evidence block; free-text "done" is not a handoff.
+3. File ownership: parallel implementers own disjoint file sets,
+   declared at spawn; a file outside an agent's set is a protected path
+   for that agent.
+4. Orchestrator does not implement. It classifies, decomposes, assigns,
+   approves plans against lane criteria, and aggregates. Orchestrator
+   implementation is a process failure, not a shortcut.
+5. Lane table: Fast — no multi-agent. Standard — parallel implementation
+   allowed under rules 1-4, review by a separate agent gated on
+   implementation tasks. Controlled — parallel review only (independent
+   lenses, e.g. security / data / tests); parallel implementation
+   forbidden.
+6. Model tiers apply per role: reviewer roles use
+   `CRITICAL_REVIEW_MODEL`; the orchestrator may use a lower tier than
+   its implementers.
+
+**Proposal, part (b)** — `ai-engineering/adapters/claude/agent-teams.md`:
+
+- Map roles to subagent definitions (lead = orchestrator;
+  `independent-reviewer` as the review teammate; per-scope implementer
+  definitions).
+- Express lane rules as plan-approval criteria given to the lead, and
+  state plainly that the lead's approval is a judgment call guided by
+  those criteria, not a mechanical gate.
+- Wire `TaskCompleted` (not `TeammateIdle` — the two hooks block
+  different points, see the verified-premises note above) to
+  `ai-engineering/checks/check-verification-report.sh` so a task cannot
+  close without a valid evidence block (depends on Item 6).
+- State the hierarchy limitation honestly: Head -> Sr -> Dev is realized
+  as lead + flat teammates with task dependencies, not nested teams.
+- Record token-cost and session-resumption limitations from the docs,
+  and the skills/MCP-server fidelity gap for teammates spawned from a
+  subagent definition.
+
+**Acceptance:** part (b) is not marked `DONE_VERIFIED` until a field
+test following `docs/field-tests/TEMPLATE.md` has run at least one
+Standard-lane parallel implementation and one Controlled-lane parallel
+review, with a Tier 2 incident log.
+
+**Size:** L. Depends on Items 6 and 7.
+
+**Status:** open — scheduled this cycle, after Items 6, 7, and 3.
+Owner: maintainer.
