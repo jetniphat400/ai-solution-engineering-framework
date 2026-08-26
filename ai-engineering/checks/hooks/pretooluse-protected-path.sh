@@ -28,13 +28,17 @@
 #
 # Dual-fire by design: this script and its PowerShell twin
 # (pretooluse-protected-path.ps1) are both registered in
-# .claude/settings.json for the same event via exec-form handlers
-# ("bash" / "powershell.exe"), so whichever interpreter a host lacks
-# fails harmlessly (non-blocking, per Claude Code's hook exit-code
-# rules) while the other does the real check. On a host with BOTH
-# interpreters, both run on every matched tool call -- redundant but
-# not wrong. Each wrapper prefixes its message with its own name so
-# two independent block messages are distinguishable, not confusing
+# .claude/settings.json for the same event, one entry per interpreter
+# -- this script via a SHELL-FORM entry ("shell": "bash", fixed in
+# BACKLOG-v1.2 Item 14, Defect 1, after exec-form's bare "bash" lookup
+# hit the WSL launcher stub on a real dev host), the PowerShell twin
+# via exec form ("powershell.exe" + args, unaffected) -- so whichever
+# interpreter a host lacks, or whose resolution fails, fails harmlessly
+# (non-blocking, per Claude Code's hook exit-code rules) while the
+# other does the real check. On a host with BOTH interpreters, both
+# run on every matched tool call -- redundant but not wrong. Each
+# wrapper prefixes its message with its own name so two independent
+# block messages are distinguishable, not confusing
 # duplicates.
 set -uo pipefail
 

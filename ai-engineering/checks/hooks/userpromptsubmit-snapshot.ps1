@@ -5,6 +5,12 @@
 # (BACKLOG-v1.2 Item 6 design note (iv)) -- this is its PowerShell
 # twin, same behavior.
 #
+# Also clears any RECOVERY marker check-stop-evidence.ps1 may have left
+# (BACKLOG-v1.2 Item 14, Defect 3): a real UserPromptSubmit means a
+# trustworthy turn-start snapshot exists again, so the degraded
+# recovery state -- where evidence was required regardless of a clean
+# diff -- no longer applies.
+#
 # Never blocks: always exits 0.
 $ErrorActionPreference = "Continue"
 
@@ -26,6 +32,7 @@ if (-not $stateDir) { $stateDir = [System.IO.Path]::GetTempPath() }
 
 $baselineFile = Join-Path $stateDir "claude-hooks-$sessionId-git-baseline.txt"
 $counterFile = Join-Path $stateDir "claude-hooks-$sessionId-stop-blocks.txt"
+$recoveryMarker = Join-Path $stateDir "claude-hooks-$sessionId-baseline-recovery.marker"
 
 try {
     Push-Location $repoRoot
@@ -38,5 +45,8 @@ try {
 }
 
 [System.IO.File]::WriteAllText($counterFile, "0", [System.Text.Encoding]::ASCII)
+if (Test-Path $recoveryMarker) {
+    Remove-Item -Path $recoveryMarker -Force -ErrorAction SilentlyContinue
+}
 
 exit 0

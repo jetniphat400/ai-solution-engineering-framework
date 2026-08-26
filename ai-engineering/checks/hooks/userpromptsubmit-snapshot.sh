@@ -15,8 +15,11 @@
 # Never blocks: always exits 0, even if session_id can't be read or
 # git fails. A missing/failed snapshot is treated by
 # check-stop-evidence.sh as "no baseline recorded", which THAT script
-# fails CLOSED on (assumes the repo changed, enforces the evidence
-# block) -- see its header.
+# fails CLOSED on and self-heals with a RECOVERY baseline (see its
+# header) -- this script clears that recovery marker on every genuine
+# fresh prompt (BACKLOG-v1.2 Item 14, Defect 3), since a real
+# UserPromptSubmit means a trustworthy turn-start snapshot now exists
+# and the degraded recovery state no longer applies.
 set -uo pipefail
 
 INPUT=$(cat)
@@ -36,8 +39,10 @@ STATE_DIR="${TMPDIR:-${TEMP:-/tmp}}"
 
 BASELINE_FILE="$STATE_DIR/claude-hooks-${SESSION_ID}-git-baseline.txt"
 COUNTER_FILE="$STATE_DIR/claude-hooks-${SESSION_ID}-stop-blocks.txt"
+RECOVERY_MARKER="$STATE_DIR/claude-hooks-${SESSION_ID}-baseline-recovery.marker"
 
 (cd "$REPO_ROOT" && git status --porcelain 2>/dev/null) > "$BASELINE_FILE" 2>/dev/null || true
 echo 0 > "$COUNTER_FILE" 2>/dev/null || true
+rm -f "$RECOVERY_MARKER" 2>/dev/null || true
 
 exit 0

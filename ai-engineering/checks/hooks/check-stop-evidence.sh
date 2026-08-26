@@ -17,9 +17,27 @@
 # limitations: a change to a gitignored file won't show as dirty and
 # won't trigger enforcement; two Claude Code sessions sharing one
 # working directory can cross-contaminate each other's git-status
-# comparison. FAILS CLOSED on a missing baseline file (treats "no
-# recorded baseline" as "assume the repo changed") rather than
-# silently skipping enforcement.
+# comparison.
+#
+# MISSING BASELINE (BACKLOG-v1.2 Item 14, Defect 3): FAILS CLOSED on a
+# missing baseline file, and says so plainly -- "no baseline was
+# recorded," not "the repo changed" -- since a missing baseline proves
+# nothing about the repo, only that no comparison is possible. Root
+# cause diagnosed live: UserPromptSubmit never re-fires on a Stop-hook-
+# forced continuation, so once a baseline is missing for any reason
+# (hooks installed mid-turn; a baseline removed out from under the
+# session), every forced continuation for the REST of that turn would
+# otherwise repeat "no baseline" forever. This script self-heals by
+# recording a RECOVERY baseline from the current state and writing a
+# sibling marker file. Critically, a recovery baseline does NOT grant a
+# future clean-diff pass within the same turn: while the marker is
+# present, evidence is required for the rest of the turn regardless of
+# comparison result, specifically so edits made earlier in the turn
+# (before the recovery baseline was written) are never silently
+# erased from consideration. userpromptsubmit-snapshot.sh clears the
+# marker on the next genuine fresh prompt, since a real UserPromptSubmit
+# means a trustworthy turn-start snapshot exists again. Under-
+# enforcing on a turn that did modify the repo is the worse failure.
 #
 # LOOP GUARD: `stop_hook_active` -- the field Claude Code's own Stop
 # hook is documented elsewhere to carry for exactly this purpose in
@@ -55,14 +73,16 @@
 # (check-stop-evidence.ps1) has no such dependency: ConvertFrom-Json is
 # native and robust.
 #
-# FALSE-POSITIVE NOTE: the terminal-status count below is a whole-
-# message occurrence count, not scoped to a single declared "final"
-# status line. A message that discusses or quotes AGENTS.md's status
-# vocabulary (exactly the kind of message this framework's own sessions
-# produce) can trip the ">1 status token" case even when a single
-# status was validly declared. Documented here and in
-# ai-engineering/adapters/claude/hooks.md rather than hidden; shipped
-# as literally specified, over-blocking rather than under-blocking.
+# DECLARATION-SCOPED STATUS COUNT (BACKLOG-v1.2 Item 14, Defect 2,
+# fixing a real false positive found in live use): the terminal-status
+# count below only counts tokens in a formal declaration position -- a
+# line matching ^\s*(\*\*)?Terminal status\b, or a line that, after
+# stripping markdown decoration, consists solely of one of the seven
+# tokens. A message that names its outcome in prose (e.g. a summary
+# sentence) and again in its formal declaration line no longer counts
+# as two declarations -- only the declaration line is counted. Fixed
+# after this exact false positive fired live, twice, immediately after
+# Item 6 shipped.
 set -uo pipefail
 
 INPUT=$(cat)
@@ -88,17 +108,40 @@ fi
 
 BASELINE_FILE="$STATE_DIR/claude-hooks-${SESSION_ID}-git-baseline.txt"
 COUNTER_FILE="$STATE_DIR/claude-hooks-${SESSION_ID}-stop-blocks.txt"
+# A recovery marker's mere presence means BASELINE_FILE was
+# reconstructed mid-turn (the real turn-start snapshot was missing),
+# not recorded by UserPromptSubmit at this turn's actual start.
+# BACKLOG-v1.2 Item 14, Defect 3: while this marker is present, a
+# clean git-status diff must NOT be treated as "nothing changed" --
+# edits made earlier in the turn, before the recovery baseline was
+# written, would otherwise be silently erased from consideration.
+# Under-enforcing on a turn that did modify the repo is the worse
+# failure, so enforcement continues for the rest of the turn
+# regardless of comparison result until a genuine new turn (a real
+# UserPromptSubmit) clears the marker.
+RECOVERY_MARKER="$STATE_DIR/claude-hooks-${SESSION_ID}-baseline-recovery.marker"
 
 CURRENT_STATUS=$(cd "$REPO_ROOT" && git status --porcelain 2>/dev/null)
 
-if [ -f "$BASELINE_FILE" ]; then
+if [ -f "$BASELINE_FILE" ] && [ ! -f "$RECOVERY_MARKER" ]; then
   BASELINE_STATUS=$(cat "$BASELINE_FILE")
   if [ "$CURRENT_STATUS" = "$BASELINE_STATUS" ]; then
     echo 0 > "$COUNTER_FILE" 2>/dev/null || true
     exit 0
   fi
+elif [ -f "$BASELINE_FILE" ] && [ -f "$RECOVERY_MARKER" ]; then
+  echo "[check-stop-evidence.sh] A recovery baseline is in effect for this turn (the real turn-start baseline was missing earlier in this turn and could not be confirmed) -- still enforcing the evidence block for the rest of this turn regardless of git-status comparison, since under-enforcing on a turn that did modify the repo is the worse failure." >&2
 else
-  echo "[check-stop-evidence.sh] No git-status baseline found for this session -- failing closed (assuming the repo changed this turn)." >&2
+  echo "[check-stop-evidence.sh] No git-status baseline was recorded for this session -- cannot determine whether this turn changed anything, so failing closed and requiring the evidence block. A recovery baseline is now being recorded so this isn't silently repeated verbatim, but evidence will still be required for the rest of this turn." >&2
+  # Marker written BEFORE baseline (independent-review finding M1):
+  # this makes the unsafe transient window read as "no baseline yet"
+  # (falls back into this same else branch, fail-closed) rather than
+  # "baseline present, no marker" (the fast clean-diff-pass branch),
+  # closing the race where a concurrent dual-fire sibling could read a
+  # just-written recovery baseline as a genuine one and grant a false
+  # pass.
+  touch "$RECOVERY_MARKER" 2>/dev/null || true
+  printf '%s\n' "$CURRENT_STATUS" > "$BASELINE_FILE" 2>/dev/null || true
 fi
 
 # --- Loop guard ---
@@ -146,9 +189,49 @@ if [ "$EXTRACT_OK" -ne 1 ]; then
   exit 2
 fi
 
-# --- Terminal-status count ---
+# --- Terminal-status count: declaration position only (BACKLOG-v1.2
+# Item 14, Defect 2) -- a message that names its outcome in prose and
+# again in its formal declaration must not be flagged as ambiguous. A
+# line counts as a declaration only if it matches
+# ^\s*(\*\*)?Terminal status\b, or if the line, after stripping
+# markdown decoration (`*_.: and whitespace) from both ends, equals
+# exactly one of the seven known tokens. Prose mentions elsewhere in
+# the message are excluded from the count entirely.
 STATUS_TOKENS_REGEX='\b(DONE_VERIFIED|CONDITIONAL_PASS|REPLAN_REQUIRED|REQUIREMENT_AMBIGUOUS|SECURITY_BLOCKED|ENVIRONMENT_UNAVAILABLE|NEEDS_HUMAN)\b'
-STATUS_COUNT=$(printf '%s' "$MESSAGE_TEXT" | grep -oE "$STATUS_TOKENS_REGEX" | wc -l | tr -d ' ')
+KNOWN_TOKENS=("DONE_VERIFIED" "CONDITIONAL_PASS" "REPLAN_REQUIRED" "REQUIREMENT_AMBIGUOUS" "SECURITY_BLOCKED" "ENVIRONMENT_UNAVAILABLE" "NEEDS_HUMAN")
+
+is_known_token() {
+  local candidate="$1" tok
+  for tok in "${KNOWN_TOKENS[@]}"; do
+    [ "$candidate" = "$tok" ] && return 0
+  done
+  return 1
+}
+
+DECLARATION_TEXT=""
+while IFS= read -r line; do
+  IS_DECL=0
+  # Strip one leading list marker (-, +, *, or "N.") before checking,
+  # so "- Terminal status: X" and "- `DONE_VERIFIED`" are recognized
+  # (independent-review finding H1: this repo's own SKILL.md renders
+  # the seven tokens as exactly this kind of bulleted list).
+  LIST_STRIPPED=$(printf '%s' "$line" | sed -E 's/^[[:space:]]*([-+*]|[0-9]+\.)[[:space:]]+//')
+  if printf '%s' "$LIST_STRIPPED" | grep -qiE '^[[:space:]]*(\*\*)?Terminal[[:space:]]+status\b'; then
+    IS_DECL=1
+  else
+    STRIPPED=$(printf '%s' "$LIST_STRIPPED" | sed -E 's/^[[:space:]]*[`*_.:]*[[:space:]]*//; s/[[:space:]]*[`*_.:]*[[:space:]]*$//')
+    if is_known_token "$STRIPPED"; then
+      IS_DECL=1
+    fi
+  fi
+  if [ "$IS_DECL" -eq 1 ]; then
+    DECLARATION_TEXT="$DECLARATION_TEXT
+$line"
+  fi
+done <<< "$MESSAGE_TEXT"
+
+
+STATUS_COUNT=$(printf '%s' "$DECLARATION_TEXT" | grep -oE "$STATUS_TOKENS_REGEX" | wc -l | tr -d ' ')
 
 # --- Five-field evidence block, reusing the shared field list ---
 # shellcheck source=../lib/evidence-fields.sh
@@ -162,9 +245,9 @@ rm -f "$TMP_MSG_FILE"
 
 PROBLEMS=()
 if [ "$STATUS_COUNT" -eq 0 ]; then
-  PROBLEMS+=("no terminal status from AGENTS.md's vocabulary found in the final message")
+  PROBLEMS+=("no terminal status found in a formal declaration position (a 'Terminal status' line, or a line consisting solely of a status token) in the final message")
 elif [ "$STATUS_COUNT" -gt 1 ]; then
-  PROBLEMS+=("$STATUS_COUNT terminal-status tokens found in the final message, expected exactly 1 (this counts every mention anywhere in the text, including discussion/quotation of the vocabulary -- a known false-positive source, see this script's header)")
+  PROBLEMS+=("$STATUS_COUNT terminal-status tokens found in declaration position in the final message, expected exactly 1")
 fi
 if [ "$FIELD_STATUS" -eq 1 ]; then
   PROBLEMS+=("no five-field evidence block found (no recognized 'Field: value' lines)")
@@ -181,5 +264,5 @@ BLOCK_COUNT=$((BLOCK_COUNT + 1))
 echo "$BLOCK_COUNT" > "$COUNTER_FILE" 2>/dev/null || true
 PROBLEMS_JOINED=$(printf '%s; ' "${PROBLEMS[@]}")
 PROBLEMS_JOINED="${PROBLEMS_JOINED%; }"
-echo "[check-stop-evidence.sh] BLOCKED (this turn modified the repository, per git status): ${PROBLEMS_JOINED}. AGENTS.md requires ending with exactly one terminal status and the five-field evidence block." >&2
+echo "[check-stop-evidence.sh] BLOCKED (evidence required for this turn): ${PROBLEMS_JOINED}. AGENTS.md requires ending with exactly one terminal status and the five-field evidence block." >&2
 exit 2
