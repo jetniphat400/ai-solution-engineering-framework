@@ -32,14 +32,27 @@ Apply `ai-engineering/policies/processing-lanes.md`, `risk-classification.md`, a
 
 ## PROPOSE
 
-Always propose before acting — never auto-proceed, at any confidence level, including all-`verified`. Use this fixed 4-line format:
+Announce the classification for every task, at any confidence level,
+including all-`verified` — never skip stating it. Whether you wait for
+confirmation before acting depends on the lane:
+
+- **Fast lane:** state the classification, then proceed immediately —
+  no confirmation wait.
+- **Standard or Controlled lane:** state the classification and wait
+  for the user's explicit confirmation before doing anything else —
+  never auto-proceed.
+
+Format:
 
 ```
 Detected: scenario=<value> (<confidence>, <evidence>); task=<value> (<confidence>, <evidence>)
 Proposed route: <module or workflow path>
 Lane: <Fast|Standard|Controlled> (<reason>)
-Confirm?
+<Proceeding. | Confirm?>
 ```
+
+Use "Proceeding." only for Fast lane. Use "Confirm?" for Standard and
+Controlled lane, and wait for the response before acting.
 
 **Exception:** an explicit mode invocation (e.g. `/engineer redteam code`, `/engineer setup-install`) skips DETECT entirely and goes straight to that module — the user has already told you the route.
 
