@@ -1,10 +1,72 @@
-# Claude Code hooks (BACKLOG-v1.2 Item 6)
+# Claude Code hooks (BACKLOG-v1.2 Items 6 and 14)
 
 `.claude/settings.json` wires three hook events to mechanically enforce
 parts of `AGENTS.md` and `ai-engineering/core/verification.md` that were
 previously voluntary-compliance-only. Verified against the installed
 Claude Code version (`2.1.246`) and the hooks reference at
 `code.claude.com/docs/en/hooks`.
+
+## Item 14 fixes (defects found in live use immediately after Item 6 shipped)
+
+**Defect 1 — bash handler never ran on the reference dev host.** Every
+bash-targeting hook entry emitted `WSL (10 - Relay) ERROR:
+CreateProcessCommon:818: execvpe(/bin/bash) failed: No such file or
+directory`. Diagnosed live: `where.exe bash` on this host resolves to
+`C:\Windows\System32\bash.exe` (Windows's WSL launcher stub) *before*
+the real Git Bash `bash.exe`, because Git's `bin` directory isn't on
+this session's `PATH` (only `Git\cmd` is) — a per-user/per-machine
+install quirk, not something a hardcoded path could fix portably. The
+hook entries used **exec form** (`command: "bash"`, `args: [...]`),
+which the hooks docs state resolves via standard OS executable
+resolution — exactly what hits the WSL stub. **Fixed** by switching
+the three bash-targeting entries to **shell form** (`command: "<script
+path>"`, `"shell": "bash"`, no `args`) instead, trusting Claude Code's
+own documented Git-Bash-presence detection (distinct from a bare OS
+PATH lookup) rather than resolving `bash` ourselves. **Verified live,
+not by inspection**: a real `Edit` PreToolUse invocation immediately
+after the fix was decided by the bash script itself (`[pretooluse-
+protected-path.sh] BLOCKED: ...`), with no WSL relay error anywhere —
+both on a protected path (real block) and an unprotected one (silent
+pass). The wrapper-self-detection fallback the fix was conditioned on
+was **not needed** — shell form resolved correctly on the first try,
+so no further invocation styles were tried, per the explicit
+instruction not to keep iterating. On a Windows host where `bash`
+genuinely only resolves to the WSL stub (no Git Bash installed at
+all), protection is provided by the PowerShell handler alone — dual-
+fire already tolerates one entry failing to spawn. A real bash-only
+host (Linux/macOS, no WSL stub in the picture at all) is unaffected by
+this change: shell form works identically there.
+
+**Defect 2 — whole-message terminal-status counting.** A message that
+named its outcome in prose (e.g. a summary sentence) and again in its
+formal declaration line was flagged as ambiguous (">1 token"),
+confirmed by two real live blocks immediately after Item 6 shipped.
+**Fixed**: the count is now scoped to declaration-position lines only
+— a line matching `^\s*(\*\*)?Terminal status\b`, or a line that,
+after stripping markdown decoration, consists solely of one of the
+seven tokens. Prose mentions elsewhere no longer count at all. Zero
+declarations found still fails closed, unchanged.
+
+**Defect 3 — missing baseline enforced on every turn.** Diagnosed
+live: `session_id` extraction, file path, and BOM were all confirmed
+correct; the real root cause is that `UserPromptSubmit` never re-fires
+on a Stop-hook-forced continuation, so once a baseline is missing for
+any reason, every forced continuation for the rest of that turn
+repeats "no baseline" indefinitely. **Fixed** with a self-healing
+RECOVERY baseline: on a missing baseline, the hook records one from
+the current state and writes a sibling marker file — but, per explicit
+instruction, a recovery baseline must never grant a clean-diff pass
+within the same turn (that would silently erase evidence of edits made
+before the recovery baseline was written, the worse failure). While
+the marker is present, the evidence block is required for the rest of
+the turn regardless of comparison result; `userpromptsubmit-
+snapshot.sh`/`.ps1` clear the marker on the next genuine fresh prompt.
+The message now says the baseline is missing and comparison is
+impossible, not that the repo is assumed changed. Verified live and at
+the script level: a missing baseline still fails closed and records a
+recovery baseline; a same-session recheck with a clean diff and the
+marker present still blocks; a fresh `UserPromptSubmit` clears the
+marker and a subsequent clean-diff check passes immediately.
 
 ## PreToolUse — protected-path block
 
@@ -59,15 +121,16 @@ against the UserPromptSubmit baseline for this session:
   truth). Missing or ambiguous → exit 2, with a message stating exactly
   what's missing.
 
-**Fails closed** on a missing baseline file (treats "no snapshot
-recorded" as "assume the repo changed," not as "skip the check").
+**Fails closed** on a missing baseline file, self-healing with a
+RECOVERY baseline that does not grant a clean-diff pass for the rest of
+the turn — see "Item 14 fixes" above (Defect 3).
 
-**Known false positive**: the terminal-status count is a whole-message
-occurrence count, not scoped to one declared final line. A message
-that discusses or quotes the status vocabulary (routine in this
-framework's own sessions) can trip the ">1 status token" case even
-when exactly one status was validly declared. Shipped as literally
-specified — over-blocking, never under-blocking — not hidden.
+**Declaration-scoped status count** (fixed in Item 14, Defect 2, after
+firing live twice): the terminal-status count is scoped to
+declaration-position lines, not a whole-message occurrence count. A
+message that discusses or names the status vocabulary in prose no
+longer trips the ">1 status token" case, as long as exactly one
+declaration-position line exists.
 
 **Loop guard.** `stop_hook_active`, which some Claude Code versions'
 docs describe for exactly this purpose, does **not** appear anywhere in
@@ -125,26 +188,36 @@ Bypassing your own completion-status gate is a materially more
 dangerous thing to make easy than bypassing a protected-file-edit
 block, so none was added.
 
-## Cross-platform dispatch: exec form, dual registration
+## Cross-platform dispatch: shell form (bash) + exec form (PowerShell), dual registration
 
-Every hook is registered twice per event in `.claude/settings.json`,
-using **exec form** (`command` + `args`, no shell interpolation at
-all):
+**Updated by Item 14, Defect 1** — the bash entries below changed from
+exec form to shell form; this section is corrected to match, replacing
+the exec-form description this file originally shipped with (see
+"Item 14 fixes" above for why). Every hook is still registered twice
+per event in `.claude/settings.json`, one entry per interpreter:
 
 ```json
-{"type":"command","command":"bash","args":["${CLAUDE_PROJECT_DIR}/.../script.sh"]}
+{"type":"command","command":"${CLAUDE_PROJECT_DIR}/.../script.sh","shell":"bash"}
 {"type":"command","command":"powershell.exe","args":["-NoProfile","-ExecutionPolicy","Bypass","-File","${CLAUDE_PROJECT_DIR}/.../script.ps1"]}
 ```
 
-Exec form spawns the named program directly — no shell decides which
-script runs, so there is no ambiguity about which of `bash`/
-`powershell.exe` a given host's default shell would have picked. On a
-host missing one interpreter, that one entry fails to spawn (a
+The bash entry uses **shell form** (`command` is the script path,
+`shell: "bash"`, no `args`), trusting Claude Code's own documented
+Git-Bash-presence detection to find a real `bash` rather than resolving
+it via a bare OS PATH lookup — the PATH lookup a bare exec-form
+`command: "bash"` used, and the reason Defect 1 existed. The
+PowerShell entry is unchanged: **exec form** (`command` + `args`), spawning
+`powershell.exe` directly with no shell deciding anything. On a host
+missing one interpreter (or where its resolution fails, e.g. a
+Windows box with no Git Bash where `bash` only resolves to the WSL
+stub), that one entry fails to spawn or errors non-fatally (a
 non-blocking error per Claude Code's own hook exit-code rules) while
 the other does the real check. **Known, accepted tradeoff**: a host
-with both interpreters present (e.g. Windows with Git Bash installed)
-runs both entries on every matched event — redundant, and on a real
-block, two independent messages instead of one. Each wrapper prefixes
+with both interpreters present (e.g. Windows with Git Bash installed —
+the reference dev host) runs both entries on every matched event —
+redundant, and on a real block, two independent messages instead of
+one, confirmed live (both a bash and a PowerShell Stop-hook block
+fired for the same turn after Defect 1's fix). Each wrapper prefixes
 its message with its own script name so the two are distinguishable
 rather than confusing duplicates.
 
@@ -202,25 +275,65 @@ Documented rather than fixed, with reasoning:
   cross-platform `pwsh` — noted only in case that assumption is ever
   revisited.
 
+## Independent review findings (BACKLOG-v1.2 Item 14, FAIL → remediated)
+
+A second independent-reviewer pass, on Item 14's diff (the three
+defect fixes above), returned **FAIL** — one blocking finding and one
+high finding, both real regressions rather than judgment calls. Full
+disposition recorded in `TEST-EVIDENCE.md`'s Item 14 remediation
+section; summarized here:
+
+- **B1 (blocking)** — `BACKLOG-v1.2.md` claimed, in present tense, that
+  H2 "is tracked as its own item in `BACKLOG-v1.3.md`" before that
+  file existed. Fixed by rewording to state the file doesn't exist yet
+  and tracking there is planned (Part 3), not already true.
+- **H1 (high)** — the declaration-line recognizer (Defect 2's fix)
+  didn't recognize a line with a leading markdown list marker, so
+  `"- Terminal status: X"` or a bulleted, backtick-wrapped token —
+  **exactly the format `personal-skills/solution-engineer/SKILL.md`
+  itself uses** to render the seven terminal statuses — was not
+  counted as a declaration, reintroducing an over-blocking false
+  positive of the same class Item 14 existed to fix. Fixed by
+  stripping one leading list marker before the declaration checks, in
+  both implementations; re-verified against the exact SKILL.md
+  convention.
+- **M1** — the RECOVERY baseline and its marker were written as two
+  separate, non-atomic file writes (baseline first), leaving a
+  transient window where a concurrent dual-fire sibling could see
+  "baseline present, no marker" and take the fast clean-diff-pass
+  branch — exactly the false pass Defect 3's fix says must never
+  happen. Fixed by writing the marker first: the same transient window
+  now reads as "no baseline yet" in either script, which correctly
+  routes to the fail-closed branch instead.
+- **M2** — this file's own "Cross-platform dispatch" section (above)
+  was left describing bash as exec-form after Defect 1 switched it to
+  shell form, contradicting this file's own "Item 14 fixes" section.
+  Fixed.
+- **M3** — a "recorded" claim in `BACKLOG-v1.2.md` pointed here before
+  this section existed. Resolved by this section's own existence.
+- **L1** — a stale "exec-form handlers" comment in
+  `pretooluse-protected-path.sh`. Fixed.
+- **L2** — `TEST-EVIDENCE.md`'s Case (2) evidence didn't show enough
+  to confirm which code path produced its `exit:0`. Fixed by showing
+  the actual message content and result.
+
+All fixes re-verified by real invocation in both implementations after
+being applied.
+
 ## Known limitations, stated rather than hidden
 
-- **Enabling these hooks mid-session leaves the turn they were added
-  in without a baseline, for the rest of that turn.** `UserPromptSubmit`
-  only fires when the user submits a genuinely new prompt, not when a
-  Stop-hook block forces the conversation to continue. If hooks are
-  wired into `settings.json` partway through an already-running turn
-  (exactly what happened while building this item), no
-  `UserPromptSubmit` ever fires for that turn's original prompt, so no
-  baseline is ever recorded for it — every `Stop` check for the rest of
-  that turn falls into the "no baseline found" fail-closed branch,
-  requiring a valid evidence block every time regardless of whether
-  anything changed since the last attempt, until the loop guard
-  releases it. Confirmed live: two real `Stop` blocks in the same turn
-  hooks were installed in both reported "No git-status baseline found
-  for this session." This is a one-time transitional artifact, not a
-  standing defect — any turn that starts with the hooks already in
-  `settings.json` gets a real baseline from the start, as verified by
-  every other real and script-level test in `TEST-EVIDENCE.md`.
+- **A turn that starts with no baseline (hooks just installed
+  mid-turn, or a prior turn's baseline lost) no longer forces
+  "no baseline" on every subsequent check within that turn** — fixed
+  in Item 14, Defect 3, with a self-healing RECOVERY baseline (see
+  "Item 14 fixes" above). `UserPromptSubmit` still only fires on a
+  genuinely new prompt, never on a Stop-hook-forced continuation, so
+  the *first* check in a turn can still find no baseline — that check
+  still fails closed, correctly. What changed: it no longer repeats
+  "no baseline" forever afterward, and — the harder requirement — a
+  recovery baseline never grants a false clean-diff pass for the rest
+  of that turn, so evidence made earlier in the turn is never silently
+  dropped from consideration.
 - Both PowerShell scripts originally wrote their baseline and counter
   files with `Out-File -Encoding utf8`, which writes a UTF-8 BOM.
   `Get-Content` strips a BOM automatically on read, so a pure

@@ -246,6 +246,27 @@ PowerShell-only round trip but which would corrupt a `bash` reader's
 numeric/string comparisons in the dual-fire case — found by inspecting
 a real state file's raw bytes, fixed with explicit BOM-less encodings.
 
+**Remaining-risk record, updated by Item 14 (2026-08-26):** three
+defects surfaced in live use immediately after this item shipped and
+are now fixed — see Item 14. Specifically: the bash handler not
+running at all on a host where `bash` resolves to the WSL stub (Item
+14 Defect 1, fixed via shell-form hook registration); the whole-message
+terminal-status false positive this item's own header already flagged
+as a known limitation (Item 14 Defect 2, fixed by scoping the count to
+declaration-position lines); and the missing-baseline-on-every-check
+behavior (Item 14 Defect 3, fixed with a self-healing, non-under-
+enforcing RECOVERY baseline). **Still open and accepted, unchanged by
+Item 14**: H1 (deadlock-avoidance conditional on `session_id`
+extraction), M2 (dual-fire's shared-state race), L1 (edit-then-revert
+nets to a clean diff), L3 (Windows-only path style), and — most
+significantly — **H2, the `PreToolUse` hook's `Bash`-tool bypass of
+protected-path enforcement, which remains open.** As of this Item 14
+close, `BACKLOG-v1.3.md` does not yet exist; H2 is planned to become
+its own tracked item there as part of this session's Part 3 work
+(carrying open v1.2 items forward), rather than living only in a
+limitations note — but that file's creation is a separate, later
+commit, not something this sentence should be read as already true.
+
 ### Item 7 — Claude Code adapter playbook and lane runtime profiles
 
 **Provenance:** external review 2026-08-26 (claude-code-best-practice
@@ -548,3 +569,76 @@ review, with a Tier 2 incident log.
 
 **Status:** open — scheduled this cycle, after Items 6, 7, and 3.
 Owner: maintainer.
+
+### Item 14 — Item 6 hook defects found in live use
+
+**Provenance:** live dogfooding 2026-08-26, observed in the Stop-hook
+blocks immediately after Item 6 shipped.
+
+**Problem:** Three real defects in shipped code, confirmed by direct
+diagnosis, not assumed:
+
+1. The bash hook handler never ran on the reference dev host — every
+   turn emitted `WSL (10 - Relay) ERROR: CreateProcessCommon:818:
+   execvpe(/bin/bash) failed: No such file or directory`. Diagnosed:
+   `where.exe bash` resolves to `C:\Windows\System32\bash.exe` (the
+   WSL launcher stub) before real Git Bash, because Git's `bin`
+   directory isn't on this session's `PATH` — only the PowerShell
+   handler ever decided.
+2. The terminal-status count was whole-message, so a message that
+   named its outcome in prose and again in its formal declaration was
+   blocked as ambiguous — confirmed by two real live blocks.
+3. The per-turn baseline was not found at Stop time on every check
+   within an affected turn, enforcing the evidence block even when
+   nothing changed. Diagnosed: `session_id` extraction, path, and BOM
+   were all correct; the real cause is that `UserPromptSubmit` never
+   re-fires on a Stop-hook-forced continuation, so a missing baseline
+   (from any cause) repeats "no baseline" for the rest of that turn.
+
+**Proposal, executed together with this log entry** (defects in
+shipped code, not logged-only): (1) switch the three bash-targeting
+hook entries in `.claude/settings.json` from exec form to shell form
+(`"shell": "bash"`), trusting Claude Code's own Git-Bash detection
+instead of a bare OS PATH lookup — confirmed working live on the first
+attempt, so the agreed fallback (a wrapper self-detecting it can't run
+under real bash or reach its check script, exiting 0 silently) was not
+needed and was not implemented. (2) Scope the terminal-status count to
+declaration-position lines only (a `Terminal status` line, or a line
+consisting solely of a token) — prose mentions no longer count. (3)
+Self-heal a missing baseline with a RECOVERY marker that does NOT grant
+a clean-diff pass for the rest of the turn, specifically so edits made
+earlier in the turn are never silently dropped from consideration —
+under-enforcing on a turn that did modify the repo is the worse
+failure.
+
+**Size:** S.
+
+**Status:** `DONE_VERIFIED`. All three defects fixed and verified by
+real invocation, not inspection: (1) a real `Edit` PreToolUse
+invocation was decided by the bash script itself with no WSL error, on
+both a protected path (blocked) and an unprotected one (silent pass);
+(2) a message naming its outcome in prose and declaring it formally
+once now passes, script-verified in both implementations; (3) an
+ordinary no-edit turn (real repo git-status data, no recovery marker)
+passes immediately, and — the harder half — a recovery marker forces
+continued enforcement despite a clean diff, with a fresh
+`UserPromptSubmit` correctly clearing it afterward. (4) A protected-path
+edit is still blocked live, post-fix (`AGENTS.md`).
+
+An independent-reviewer pass on this remediation itself returned
+`FAIL`, not a pass on the first try: B1 (blocking — this file
+previously claimed, in present tense, that `BACKLOG-v1.3.md` already
+tracked H2, before that file existed) and H1 (high — the Defect 2 fix
+didn't recognize a declaration wrapped in a markdown list marker,
+exactly the format `personal-skills/solution-engineer/SKILL.md` itself
+uses for the seven terminal statuses, reintroducing an over-blocking
+false positive of the same class this item exists to fix). Both were
+real regressions, not matters of judgment, and both are now fixed and
+re-verified, along with medium/low findings M1 (a non-atomic
+recovery-file write order that could defeat Defect 3's own
+no-false-pass guarantee under real dual-fire), M2 (a stale doc
+section), M3 (a premature "recorded" claim), L1, and L2. Full
+before/after evidence and the complete verdict:
+`ai-engineering/checks/TEST-EVIDENCE.md`'s Item 14 entry and
+`ai-engineering/adapters/claude/hooks.md`'s "Independent review
+findings (Item 14, FAIL → remediated)" section.

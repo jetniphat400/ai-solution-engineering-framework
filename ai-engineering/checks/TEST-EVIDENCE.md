@@ -445,6 +445,206 @@ it.
 
 ---
 
+### Item 14 — Item 6 hook defects found in live use, fixed
+
+**Date:** 2026-08-26. Three real defects surfaced in live use immediately
+after Item 6 shipped (see the Stop-hook blocks in this session's own
+transcript), diagnosed and fixed. All four verification cases run as
+real invocations, not inspection.
+
+**Defect 1 — bash handler never ran (WSL relay error).** Diagnosed:
+`where.exe bash` on this host resolves to `C:\Windows\System32\bash.exe`
+(the WSL launcher stub) before real Git Bash, because Git's `bin`
+directory isn't on this session's `PATH`. Fixed by switching the three
+bash-targeting hook entries from exec form to shell form
+(`"shell": "bash"`), trusting Claude Code's own Git-Bash detection
+instead of a bare OS PATH lookup.
+
+**Case (1) — a turn with no bash error — LIVE, harness-triggered:**
+immediately after the settings.json fix, a real `Edit` PreToolUse
+invocation against a protected path was decided by the bash script
+itself:
+```
+PreToolUse:Edit hook error: [${CLAUDE_PROJECT_DIR}/.../pretooluse-protected-path.sh]:
+[pretooluse-protected-path.sh] BLOCKED: PROTECTED PATH TOUCHED: ai-engineering/checks/hooks/userpromptsubmit-snapshot.ps1
+(matches: ai-engineering/checks/). ...
+```
+No WSL relay error anywhere. Reconfirmed on an unprotected file (a real
+`Edit` to `ai-engineering/adapters/claude/hooks.md`) with a fully
+silent, clean pass -- no error, no block message, no bash noise at
+all. And reconfirmed again on `AGENTS.md` (protected) after all three
+defects were fixed:
+```
+PreToolUse:Edit hook error: [${CLAUDE_PROJECT_DIR}/.../pretooluse-protected-path.sh]:
+[pretooluse-protected-path.sh] BLOCKED: PROTECTED PATH TOUCHED: AGENTS.md (matches: AGENTS.md). ...
+```
+Shell form resolved correctly on the first attempt; the wrapper-self-
+detection fallback the fix was conditioned on was not needed and was
+not implemented, per the explicit instruction not to keep iterating on
+invocation styles once a fix works.
+
+**Defect 2 — whole-message terminal-status counting.** Fixed by
+scoping the count to declaration-position lines only (a `Terminal
+status` line, or a line consisting solely of a token).
+
+**Case (2) — prose mention + formal declaration passes — script-level,
+both implementations, real repo state, with the actual message content
+and result shown (not just "exit:0", per a review finding that the
+first version of this entry didn't show enough to confirm which code
+path actually ran):**
+
+Message used (a realistic "closes with a prose summary, then a formal
+declaration" shape):
+```
+Item 6 closed as DONE_VERIFIED.
+
+Command or procedure: x
+Result: y
+Pass or fail: PASS
+Evidence location: z
+Remaining risk: none
+
+**Terminal status:** DONE_VERIFIED
+```
+This message contains the token `DONE_VERIFIED` twice -- once in
+prose, once in the formal declaration -- exactly the shape that, under
+the OLD whole-message counting this item replaced, produced "2
+terminal-status tokens found... expected exactly 1" and blocked live,
+twice, immediately after Item 6 shipped. Under the fixed,
+declaration-scoped counting:
+```
+[check-stop-evidence.sh] No git-status baseline was recorded for this session -- ...
+exit: 0
+```
+No `BLOCKED` line at all (the baseline-missing notice is unrelated to
+Defect 2 -- it is Defect 3's own, separately-verified fail-closed
+message; the point here is the absence of any status-count complaint):
+the prose mention on line 1 is not a declaration-position line
+(doesn't match `^\s*(\*\*)?Terminal status\b`, and isn't a line
+consisting solely of a token), so only the `**Terminal status:**
+DONE_VERIFIED` line is counted -- exactly 1. Reproduced identically in
+`check-stop-evidence.ps1`.
+
+A second script-level case, added after the independent-reviewer found
+(finding H1) that the first version of this fix did not recognize a
+declaration wrapped in a markdown list bullet -- exactly the format
+`personal-skills/solution-engineer/SKILL.md` itself uses to render the
+seven terminal statuses (a bulleted, backtick-wrapped token) -- confirms
+the corrected fix handles it:
+```
+=== H1 regression test: bulleted status line, SKILL.md style ===
+... (5-field block) ...
+
+- `DONE_VERIFIED`
+exit:0 (expect 0)
+
+=== H1 regression test 2: '- Terminal status: X' bulleted declaration line ===
+... (5-field block) ...
+
+- Terminal status: NEEDS_HUMAN
+exit:0 (expect 0)
+```
+Reproduced identically in `check-stop-evidence.ps1` with the
+PowerShell-native backtick-escaped equivalent.
+
+**Defect 3 — missing baseline enforced on every turn.** Diagnosed:
+`session_id` extraction, path, and BOM were all confirmed correct;
+root cause is `UserPromptSubmit` never re-firing on a Stop-hook-forced
+continuation. Fixed with a self-healing RECOVERY baseline that does
+NOT grant a clean-diff pass while its marker is present, exactly per
+instruction (under-enforcing on a turn that did modify the repo is the
+worse failure).
+
+**Case (3) — an ordinary no-edit turn ends without a block — real
+repo state, both implementations:** using this repo's actual `git
+status --porcelain` as both the recorded baseline and the current
+comparison value (no recovery marker present):
+```
+=== case 3: baseline == real current status, no recovery marker -> immediate PASS ===
+exit:0 (expect 0)
+```
+Also verified the recovery-marker-forces-enforcement path explicitly
+(the harder, non-obvious half of Defect 3's fix): with a recovery
+marker present, a clean diff on the SAME session still blocked:
+```
+exit:2 (expect 2, NOT 0 -- recovery marker must force enforcement)
+```
+and a fresh `UserPromptSubmit` on that same session correctly cleared
+the marker, after which a clean-diff check passed immediately (`exit:0`).
+
+**Case (4) — an edit to a protected path is still blocked — LIVE,
+harness-triggered:** shown above (`AGENTS.md`, post-fix). Protected-
+path enforcement is unaffected by any of the three fixes.
+
+**Independent-reviewer pass** on the full Item 14 diff returned
+**FAIL**, with one blocking finding (B1) and one high finding (H1) that
+both required real fixes, not just re-labeling. Disposition:
+
+**B1 (blocking) — a factually false claim.** `BACKLOG-v1.2.md`'s Item
+6 remaining-risk paragraph stated H2 "is tracked as its own item in
+`BACKLOG-v1.3.md`" in present tense, while that file did not yet exist
+(it is Part 3 of this session's later work). **Fixed** by rewording to
+state plainly that the file does not yet exist and H2's tracking there
+is planned, not already true.
+
+**H1 (high) — Defect 2's fix didn't recognize a leading list marker.**
+A line like `"- Terminal status: NEEDS_HUMAN"` or a bulleted,
+backtick-wrapped token (exactly `personal-skills/solution-engineer/
+SKILL.md`'s own convention for rendering the seven terminal statuses)
+was not recognized as a declaration in either implementation, so a
+message using only that format was blocked as having zero
+declarations -- the same class of over-blocking false positive Item 14
+existed to eliminate, just triggered by a different, real, in-repo
+formatting convention. **Fixed** by stripping one leading list marker
+(`-`, `+`, `*`, or `N.`) before applying the declaration checks, in
+both `check-stop-evidence.sh` and `.ps1`. Re-verified with the exact
+SKILL.md-style bulleted case in both implementations (see Case (2)
+above, second script-level case) -- both now pass.
+
+**M1 (medium) — the recovery write was non-atomic, and the two-step
+order could defeat the fix's own guarantee under real dual-fire.**
+Writing the RECOVERY baseline before the marker file left a transient
+window where a concurrent sibling invocation (bash and PowerShell truly
+running at the same instant on this same dual-fire host) could see
+"baseline present, no marker" and take the fast clean-diff-pass branch
+-- exactly the false pass Defect 3 was built to prevent. **Fixed** by
+reordering to write the marker first, then the baseline, in both
+implementations: the unsafe transient window now reads as "no baseline
+yet" in either script, which correctly falls back to the same
+fail-closed branch rather than the fast-pass one. Re-verified: a
+missing baseline with an invalid message still fails closed and
+records recovery state; the same session with a subsequently *valid*
+message still runs the check (and correctly passes, since the message
+now satisfies the requirement) rather than being forced to fail --
+confirming the marker forces *evaluation*, not a permanent failure.
+
+**M2 (medium) — `hooks.md`'s cross-platform-dispatch section was stale**, still describing the bash entries as exec form after Defect 1
+switched them to shell form, directly contradicting the same
+document's own new "Item 14 fixes" section. **Fixed**: rewritten to
+describe shell form for bash / exec form for PowerShell accurately,
+with the reasoning for the asymmetry stated explicitly.
+
+**M3 (medium) — a "recorded" claim that wasn't true yet at review time.** `BACKLOG-v1.2.md`'s Item 14 status pointed to an independent-review
+verdict "recorded" in `hooks.md` and `TEST-EVIDENCE.md` before either
+actually contained one. Resolved: this remediation section and the
+corresponding "Independent review findings" section in `hooks.md` (see
+that file) now genuinely contain the verdict and its disposition,
+making the claim true as of the commit that closes this item.
+
+**L1 (low) — a stale comment** in `pretooluse-protected-path.sh`
+describing dual-fire as "exec-form handlers" for both scripts. Fixed
+to describe the actual shell-form/exec-form split.
+
+**L2 (low) — weak evidence** for Case (2) (didn't show the actual
+message or decision path). Fixed: see the rewritten Case (2) above,
+now showing the literal message content and confirming which code path
+produced the pass.
+
+All fixes re-verified by real invocation in both implementations after
+being applied, not assumed correct from the diff alone.
+
+---
+
 ## Summary
 
 | Item | Synthetic fixtures | Real-target (PCC) result | Bugs found & fixed |
@@ -454,6 +654,7 @@ it.
 | 3 — CI regression gate | 6/6 pass (both implementations) | Count (219) matches PCC's own recorded history exactly | multi-digit concatenation bug |
 | 4 — skill allowlist visibility | 2/2 pass (both implementations) | True positive on PCC's real unregistered `analyze-stock` skill | none |
 | 6 — Claude Code hooks | Cases (a)-(e) + loop guard, both implementations | Case (a) live-blocked TWICE on this repo's own real edits mid-implementation; (c)/(e) run against this repo's real git status | 4 real bugs total (set -e abort, Write-Error exit-code corruption, BOM-corrupted state files, nested powershell.exe missing -ExecutionPolicy Bypass); independent review CONDITIONAL PASS, M1/M3/L2 fixed and re-verified, H1/M2/L1/L3 documented as accepted limitations |
+| 14 — Item 6 hook defects | Cases (1)-(4), both implementations, plus H1/M1 regression re-tests | Case (1) live-decided by bash itself (no WSL error) on both a protected and unprotected real edit; case (4) live-blocked on AGENTS.md post-fix | 3 defects fixed (WSL-stub bash resolution, whole-message status count, missing-baseline enforcement); independent review FAIL -> remediated: B1/H1 fixed (real regressions), M1-M3/L1-L2 fixed |
 
 Two real bugs surfaced by testing against realistic and real data that
 none of the initial synthetic fixtures caught on their own — the
