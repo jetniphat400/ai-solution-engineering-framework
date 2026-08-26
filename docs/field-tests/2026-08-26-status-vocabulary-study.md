@@ -353,3 +353,30 @@ sessions, which is a real, recurring shape in this repo's own history
   external register's *current* state, rather than what the field-test
   reports recorded about it, should re-verify against that repo
   directly.
+
+## Decision
+
+**Date:** 2026-08-26. **Option chosen:** design (b) — a single
+vocabulary, `AGENTS.md`'s terminal statuses, used everywhere. The
+local set (`DONE`/`NOT_STARTED`/`DEFERRED`/`NEEDS_DECISION`/
+`CONTESTED`) and the crosswalk table are retired for all files dated
+2026-08-26 or later; files predating that date keep the retired
+vocabulary as an accurate historical record (see `CHANGELOG.md`).
+
+**Rationale:** the crosswalk table was never followed in practice —
+§2 found every real `NOT_STARTED` item in this repo's own backlog
+history crosswalked to `NEEDS_HUMAN`, not the table's defined
+`REPLAN_REQUIRED`, a systematic deviation that went undetected because
+nothing mechanically enforced the table (design (d) would have caught
+it; design (a), the status quo, would not have). Beyond that drift,
+the local set was found to carry no distinction the terminal set
+cannot express on its own: unfinished work now has a plain-prose
+convention (`Status: open — scheduled <round/owner>` / `Status: open —
+unscheduled`) with no vocabulary term to keep in sync with a second
+system, and Gates close directly with a terminal status per gate type
+rather than through an intermediate local status and a mapping step.
+Implementation: `ai-engineering/core/workflow.md`, `AGENTS.md`,
+`personal-skills/solution-engineer/SKILL.md` and its `references/`
+files, and `BACKLOG-v1.2.md`'s own item statuses were updated to match;
+full diff and verification in the commits closing `BACKLOG-v1.2.md`
+Item 11.
