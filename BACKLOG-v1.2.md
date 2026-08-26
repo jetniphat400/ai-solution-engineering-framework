@@ -340,21 +340,31 @@ when executed.
 
 **Size:** S.
 
-**Status:** The study-only gate closed `NEEDS_HUMAN` on 2026-08-26; full
-report: `docs/field-tests/2026-08-26-status-vocabulary-study.md`. Per
-this gate type's own definition (`ai-engineering/core/workflow.md`'s
-"Study-only gate"), it gathered evidence and informed the decision
-without making one. The decision gate ran the same day and chose
-design (b) — retire the local vocabulary and crosswalk table, use
-`AGENTS.md`'s terminal statuses everywhere — recorded in the study
-report's "## Decision" section (commit `7275d03`). Implementation
-landed in commit `77d5c11` (`AGENTS.md`, `ai-engineering/core/
-workflow.md`, `personal-skills/solution-engineer/SKILL.md` and its
-`references/` files, and this file's other items). Independent review
-found this item's own status paragraph had not been updated to match
-(CONDITIONAL PASS, finding B1); that gap and the review's other
-findings (M1, M2, L2) were remediated in a follow-up commit before this
-item closed.
+**Status:** `DONE_VERIFIED`. The study-only gate closed `NEEDS_HUMAN` on
+2026-08-26; full report:
+`docs/field-tests/2026-08-26-status-vocabulary-study.md`. Per this gate
+type's own definition (`ai-engineering/core/workflow.md`'s "Study-only
+gate"), it gathered evidence and informed the decision without making
+one. The decision gate ran the same day and chose design (b) — retire
+the local vocabulary and crosswalk table, use `AGENTS.md`'s terminal
+statuses everywhere — recorded in the study report's "## Decision"
+section (commit `7275d03`). Implementation landed in commit `77d5c11`
+(`AGENTS.md`, `ai-engineering/core/workflow.md`,
+`personal-skills/solution-engineer/SKILL.md` and its `references/`
+files, and this file's other items). Evidence: commits `77d5c11`,
+`7275d03`, and `3a4990d`; the independent-reviewer
+returned `CONDITIONAL PASS` naming finding B1 (this item's own status
+paragraph had not been updated to match — the decision was already
+made, but the paragraph still said one was pending and used the
+retired vocabulary live) and finding H1 (the pre-decision grep claimed
+the change complete without re-checking after implementation); B1,
+H1's underlying gap, and findings M1/M2/L2 were all remediated in
+commit `3a4990d`, re-verified by a repo-wide grep for every retired
+term and by `check-verification-report.sh` against the study report.
+**Process lesson (H1):** a grep run to justify a completion claim must
+be run *after* the edits it is certifying, against the edited state —
+not only during the earlier study phase — or it can miss the very item
+it is meant to close, as it did here.
 
 ### Item 12 — Compatibility record
 
