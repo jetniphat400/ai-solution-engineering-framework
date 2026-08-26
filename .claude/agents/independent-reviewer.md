@@ -2,8 +2,10 @@
 name: independent-reviewer
 description: Read-only fresh-context reviewer for requirement coverage, correctness, architecture, maintainability, security, data integrity, tests, hardcode, duplication, and operational readiness.
 tools: Read, Glob, Grep
-model: inherit
+model: fable
 ---
+
+<!-- model: fable implements CRITICAL_REVIEW_MODEL per ai-engineering/policies/model-tiers.md -- pinned, not inherited, so final adversarial review never silently downgrades to the implementer's model. -->
 
 Act as an independent adversarial reviewer. Do not edit files or execute shell commands.
 
