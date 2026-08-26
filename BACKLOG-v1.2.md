@@ -248,9 +248,24 @@ document a cross-model fallback in `adapters/codex/README.md`.
 
 **Size:** S.
 
-**Status:** `NOT_STARTED` -> crosswalk `NEEDS_HUMAN`. Logged only, per
-explicit instruction not to act this round. No round or owner assigned
-yet.
+**Status:** `NOT_STARTED` -> `DONE` -> crosswalk `DONE_VERIFIED`.
+Shipped as commit `da41613`: `independent-reviewer.md` pins
+`model: fable` (verified accepted via `claude --help` and a direct
+quote from `https://code.claude.com/docs/en/sub-agents`'s subagent
+frontmatter table — `best` was checked and confirmed *not* valid there,
+despite matching the "strongest available, degrade gracefully"
+semantics in prose); `adapters/claude/README.md` documents the full
+tier→model mapping with `opus` as the explicit fallback where Fable 5
+isn't available; `adapters/codex/README.md` documents the cross-vendor
+fallback as the preferred Controlled-lane path. Post-edit grep of
+`ai-engineering/core/` and `ai-engineering/policies/` for
+`fable|opus|sonnet|haiku|claude-` returned zero matches — no
+vendor/model name leaked into vendor-neutral canon. One verification
+gap disclosed rather than hidden: `claude agents` requires an
+interactive TTY and couldn't be run headlessly to confirm the loaded
+subagent picker shows `fable`; verified instead by direct inspection
+of the YAML frontmatter's structure and the already-confirmed-valid
+literal value.
 
 ### Item 9 — Requirements intake before classification
 
