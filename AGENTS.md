@@ -137,6 +137,8 @@ proposed safe fix awaiting approval — see `docs/field-tests/
 2026-08-19-cross-agent-contract-test.md`.)
 
 Work tracked in a multi-item register or through a Gate (see
-`ai-engineering/core/workflow.md`) maps its own per-item status onto
-one of the statuses above at closeout via that section's crosswalk —
-this list is not restated per item.
+`ai-engineering/core/workflow.md`) closes each finished item with one
+of the statuses above directly — no separate local vocabulary or
+crosswalk step. An item still in progress carries no status term from
+this list; `ai-engineering/core/workflow.md` defines the open-item
+convention for that case.

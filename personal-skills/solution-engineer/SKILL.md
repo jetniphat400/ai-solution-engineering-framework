@@ -186,17 +186,13 @@ proposed, not yet applied) and what's missing is approval to proceed
 with it. (Provenance of this list and this disambiguation rule,
 including the field test behind it: `references/provenance.md`.)
 
-If the work is naturally multi-item (a small audit, several related
-fixes in one session), close each item with one of these five local
-statuses instead, then map to the list above at the end:
-
-| Local status | Meaning | Maps to |
-|---|---|---|
-| `DONE` | action taken (or investigated, nothing to fix) and verified | `DONE_VERIFIED` (or `CONDITIONAL_PASS` with a documented, approved caveat) |
-| `NOT_STARTED` | not yet attempted | `REPLAN_REQUIRED` |
-| `DEFERRED` | investigated; decided to postpone/decline, named as its own future item | `CONDITIONAL_PASS` if a round/owner is assigned, else `NEEDS_HUMAN` |
-| `NEEDS_DECISION` | evidence gathered, a decision-owner's call is pending | `NEEDS_HUMAN` |
-| `CONTESTED` | an inherited claim failed re-verification, or evidence conflicts | `REPLAN_REQUIRED` |
+These statuses describe **finished** work only. If the work is
+naturally multi-item (a small audit, several related fixes in one
+session), close each finished item with one of the statuses above
+directly — no separate local vocabulary, no crosswalk step. An
+**unfinished** item carries no status term: write `Status: open —
+scheduled <round/owner>` or `Status: open — unscheduled` instead. Do
+not invent a replacement term for in-progress state.
 
 ## Gates — when a proposed action needs a look-before-you-leap step
 
@@ -205,12 +201,16 @@ or an inherited "identical"/"safe"/"dead" claim needs re-derivation
 before acting on it — distinct from the standard lane approval flow
 above.
 
-- **Investigation gate** — investigate before acting; closes `DONE` or
-  `CONTESTED`.
+- **Investigation gate** — investigate before acting; closes
+  `DONE_VERIFIED` or `REPLAN_REQUIRED`.
 - **Study-only gate** — gather evidence, change no code; always closes
-  `NEEDS_DECISION`.
+  `NEEDS_HUMAN`.
 - **Decision gate** — make the call using a study-only gate's evidence
-  when one preceded it; closes `DONE`, `DEFERRED`, or `CONTESTED`.
+  when one preceded it; closes `DONE_VERIFIED`, `CONDITIONAL_PASS`
+  (postponed/accepted with a caveat, scoped as its own future item with
+  a round/owner already assigned), or `REPLAN_REQUIRED`. A decision
+  that postpones something with no round/owner assigned yet isn't
+  finished — use the open-item convention above, not a terminal status.
 
 Full detail: `references/workflow-and-gates.md`.
 

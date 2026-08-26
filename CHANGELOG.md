@@ -14,6 +14,18 @@ backlog in lockstep so a git-log-depth guess is never needed to answer
 "what version is this" (see Round 3a below, which existed to fix
 exactly that ambiguity).
 
+## Unreleased — v1.2 in progress
+
+Files dated before 2026-08-26 (`BACKLOG-v0.2.md`, `BACKLOG-v0.3.md`,
+`BACKLOG-v1.1.md`, and every `docs/field-tests/*.md` report dated
+before 2026-08-26) use the retired local Gate/register status
+vocabulary (`DONE`/`NOT_STARTED`/`DEFERRED`/`NEEDS_DECISION`/
+`CONTESTED`) and its crosswalk table — not rewritten, kept as an
+accurate historical record. `BACKLOG-v1.2.md` Item 11's decision gate
+retired that vocabulary in favor of `AGENTS.md`'s terminal statuses
+used directly everywhere; see `docs/field-tests/
+2026-08-26-status-vocabulary-study.md` for the study and decision.
+
 ## 1.1.0
 
 Closes the v1.1 backlog (see `BACKLOG-v1.1.md`), theme "proof &

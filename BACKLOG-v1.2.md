@@ -46,9 +46,8 @@ directions, not mutually exclusive:
 **Size:** not yet estimated — depends on which branch of the fork is
 taken.
 
-**Status:** `NOT_STARTED` -> crosswalk `NEEDS_HUMAN`. Logged only, per
-explicit instruction not to act this round. No round or owner assigned
-yet.
+**Status:** open — unscheduled. Logged only, per explicit instruction
+not to act this round.
 
 ### Item 2 — Direct-from-URL install
 
@@ -66,8 +65,7 @@ prescribe one.
 
 **Size:** M.
 
-**Status:** `DEFERRED` -> crosswalk `NEEDS_HUMAN`. Not scheduled this
-cycle.
+**Status:** open — unscheduled. Not scheduled this cycle.
 
 ### Item 3 — Unattended execution profile
 
@@ -108,7 +106,7 @@ name a Claude-specific command.
 
 **Size:** L.
 
-**Status:** `NOT_STARTED`, scheduled this cycle.
+**Status:** open — scheduled this cycle.
 
 ### Item 4 — Provenance extraction from solution-engineer SKILL.md
 
@@ -128,7 +126,7 @@ operating rules.
 
 **Size:** M.
 
-**Status:** `DONE` -> crosswalk `DONE_VERIFIED`. Executed as commit
+**Status:** `DONE_VERIFIED`. Executed as commit
 `0a728d1` before this item was logged here — noted explicitly rather
 than presented as planned-then-done. Evidence: post-edit grep of
 `SKILL.md` for `\[source:`/`flagged as` returned zero matches;
@@ -155,7 +153,7 @@ noting that escalating out of Fast also flips the wait behavior.
 
 **Size:** S.
 
-**Status:** `CONDITIONAL_PASS` -> `DONE` -> crosswalk `DONE_VERIFIED`.
+**Status:** `CONDITIONAL_PASS` -> `DONE_VERIFIED`.
 Shipped as commit `df883d5`; remaining-work gap (`.claude/skills/
 engineer/SKILL.md`'s PROPOSE section still requiring "Confirm?"
 unconditionally for all lanes) closed as commit `e7c3b7c`, which
@@ -188,9 +186,8 @@ with `.sh`.
 
 **Size:** M.
 
-**Status:** `NOT_STARTED` -> crosswalk `NEEDS_HUMAN`. Logged only, per
-explicit instruction not to act this round. No round or owner assigned
-yet.
+**Status:** open — unscheduled. Logged only, per explicit instruction
+not to act this round.
 
 ### Item 7 — Claude Code adapter playbook and lane runtime profiles
 
@@ -222,9 +219,8 @@ name a Claude command.
 
 **Size:** M.
 
-**Status:** `NOT_STARTED` -> crosswalk `NEEDS_HUMAN`. Logged only, per
-explicit instruction not to act this round. No round or owner assigned
-yet.
+**Status:** open — unscheduled. Logged only, per explicit instruction
+not to act this round.
 
 ### Item 8 — Reviewer model contradicts model-tiers policy
 
@@ -248,8 +244,7 @@ document a cross-model fallback in `adapters/codex/README.md`.
 
 **Size:** S.
 
-**Status:** `NOT_STARTED` -> `DONE` -> crosswalk `DONE_VERIFIED`.
-Shipped as commit `da41613`: `independent-reviewer.md` pins
+**Status:** `DONE_VERIFIED`. Shipped as commit `da41613`: `independent-reviewer.md` pins
 `model: fable` (verified accepted via `claude --help` and a direct
 quote from `https://code.claude.com/docs/en/sub-agents`'s subagent
 frontmatter table — `best` was checked and confirmed *not* valid there,
@@ -289,9 +284,8 @@ placed in the adapter, not in `workflow.md` itself.
 
 **Size:** M.
 
-**Status:** `NOT_STARTED` -> crosswalk `NEEDS_HUMAN`. Logged only, per
-explicit instruction not to act this round. No round or owner assigned
-yet.
+**Status:** open — unscheduled. Logged only, per explicit instruction
+not to act this round.
 
 ### Item 10 — Single-owner mode
 
@@ -314,9 +308,8 @@ fresh session, not the implementing one.
 
 **Size:** S.
 
-**Status:** `NOT_STARTED` -> crosswalk `NEEDS_HUMAN`. Logged only, per
-explicit instruction not to act this round. No round or owner assigned
-yet.
+**Status:** open — unscheduled. Logged only, per explicit instruction
+not to act this round.
 
 ### Item 11 — Status vocabulary simplification (study-only gate)
 
@@ -381,6 +374,5 @@ before trusting the playbook's command list.
 
 **Size:** S.
 
-**Status:** `NOT_STARTED` -> crosswalk `NEEDS_HUMAN`. Logged only, per
-explicit instruction not to act this round. No round or owner assigned
-yet.
+**Status:** open — unscheduled. Logged only, per explicit instruction
+not to act this round.

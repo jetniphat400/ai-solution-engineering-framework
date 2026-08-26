@@ -77,10 +77,9 @@ S2 scratch-repo test flagged this exact ambiguity as a judgment call;
 cross-agent testing later confirmed it as a real, recurring gap, not a
 one-off — see `docs/field-tests/2026-08-19-cross-agent-contract-test.md`.
 
-## Local statuses table / Gates
+## Gates
 
-- Local status legend and crosswalk table: `ai-engineering/core/workflow.md:45-69`
-- Gates (investigation / study-only / decision): `ai-engineering/core/workflow.md:82-92`
+- Gates (investigation / study-only / decision): `ai-engineering/core/workflow.md`'s "Gates: investigation, study-only, decision" section. The local status legend and crosswalk table this used to also cite was retired 2026-08-26 — see `docs/field-tests/2026-08-26-status-vocabulary-study.md` for the study and decision, and `CHANGELOG.md` for which files predate the change.
 
 ## Protected assets and human approval
 

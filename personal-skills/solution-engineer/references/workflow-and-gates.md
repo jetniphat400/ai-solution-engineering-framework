@@ -53,19 +53,22 @@ the action is irreversible, the evidence is disputed, or the
 "identical"/"safe"/"dead" claim behind it was inherited rather than
 freshly derived (see `SKILL.md`'s claim-confidence section).
 
+Each Gate type closes with one of `SKILL.md`'s terminal statuses
+directly — a Gate does not invent its own vocabulary:
+
 - **Investigation gate.** Investigate a claim or proposed action
   against current code — and real data, when money or scoring is
-  involved — before doing anything else. Closes `DONE` (confirmed and,
-  if warranted, actioned; or confirmed as a non-issue) or `CONTESTED`
-  (the claim didn't hold up and needs a fresh decision).
+  involved — before doing anything else. Closes `DONE_VERIFIED`
+  (confirmed and, if warranted, actioned; or confirmed as a non-issue)
+  or `REPLAN_REQUIRED` (the claim didn't hold up and needs a fresh
+  decision).
 - **Study-only gate.** Gather evidence — a reusable script, a real-data
   comparison, a formal proof — without changing any code. Always
-  closes `NEEDS_DECISION`: it informs a decision, it never makes one.
+  closes `NEEDS_HUMAN`: it informs a decision, it never makes one.
 - **Decision gate.** Make the actual call, using a study-only gate's
-  evidence when one preceded it. Closes `DONE` (approved and
-  executed), `DEFERRED` (rejected or postponed, scoped as its own
-  named future item), or `CONTESTED` (no agreement reached; escalate).
-
-A Gate's closing status is drawn from the same five-state legend in
-`SKILL.md`'s "Terminal statuses" section — a Gate does not invent its
-own vocabulary.
+  evidence when one preceded it. Closes `DONE_VERIFIED` (approved and
+  executed), `CONDITIONAL_PASS` (postponed or accepted with a caveat,
+  scoped as its own named future item with a round/owner already
+  assigned), or `REPLAN_REQUIRED` (no agreement reached; escalate). A
+  decision that postpones something with no round/owner assigned isn't
+  finished — use `SKILL.md`'s open-item convention instead.
